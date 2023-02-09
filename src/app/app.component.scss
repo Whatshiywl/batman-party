@@ -1,0 +1,15 @@
+@keyframes laugh {
+  0%   { font-size: 3em;    transform: rotate(20deg); opacity: 1; }
+  25%  { font-size: 2.5em;  transform: rotate(15deg); opacity: 0.8; }
+  50%  { font-size: 2em;    transform: rotate(20deg); opacity: 0.6; }
+  75%  { font-size: 1.5em;  transform: rotate(15deg); opacity: 0.4; }
+  100% { font-size: 1em;    transform: rotate(20deg); opacity: 0.2; }
+}
+
+span.laugh {
+  position: fixed;
+  animation-name: laugh;
+  animation-timing-function: steps(1);
+  animation-iteration-count: infinite;
+  color: gray;
+}

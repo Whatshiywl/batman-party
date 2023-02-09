@@ -36,6 +36,7 @@
           },
           "configurations": {
             "production": {
+              "outputPath": "public",
               "budgets": [
                 {
                   "type": "initial",
