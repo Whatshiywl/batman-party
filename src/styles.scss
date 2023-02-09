@@ -13,3 +13,19 @@ html, body, app-root {
   color: white;
   overflow: hidden;
 }
+
+.batman-flex {
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  > .batman-flex-body {
+    z-index: 1;
+    max-height: 100vh;
+    max-width: 100vw;
+  }
+}

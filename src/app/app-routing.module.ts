@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { InviteComponent } from './components/invite.component';
-import { ScanComponent } from './components/scan.component';
+import { ScanTestComponent } from './components/scan-test.component';
 
 const routes: Routes = [
   {
     path: 'scan',
-    component: ScanComponent
+    component: ScanTestComponent
   },
   {
     path: '',
