@@ -4,11 +4,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { InviteComponent } from './components/invite.component';
+import { ScanComponent } from './components/scan.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    InviteComponent
+    InviteComponent,
+    ScanComponent
   ],
   imports: [
     BrowserModule,
