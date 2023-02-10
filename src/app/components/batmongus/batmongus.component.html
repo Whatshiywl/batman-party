@@ -1,0 +1,9 @@
+<div class="batman-flex">
+  <batman-scan
+    *ngIf="!scanResult"
+    class="batman-flex-body"
+    (result)="onScanResult($event)"
+    >
+  </batman-scan>
+  <router-outlet></router-outlet>
+</div>
