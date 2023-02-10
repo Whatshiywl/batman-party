@@ -7,6 +7,10 @@ import { AppComponent } from './app.component';
 import { InviteComponent } from './components/invite.component';
 import { ScanTestComponent } from './components/scan-test.component';
 import { ScanComponent } from './components/scan.component';
+import { environment } from '../environments/environment';
+import { AngularFireModule } from '@angular/fire/compat';
+import { CryptoService } from './shared/crypto.service';
+import { SecretService } from './shared/secret.service';
 
 @NgModule({
   declarations: [
@@ -18,9 +22,13 @@ import { ScanComponent } from './components/scan.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ZXingScannerModule
+    ZXingScannerModule,
+    AngularFireModule.initializeApp(environment.firebase),
   ],
-  providers: [],
+  providers: [
+    CryptoService,
+    SecretService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

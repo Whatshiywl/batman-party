@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { interval, Subject, takeUntil, timer } from 'rxjs';
+import { interval, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-root',
