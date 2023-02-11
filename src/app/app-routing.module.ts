@@ -1,12 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { InviteComponent } from './components/invite.component';
-import { ScanTestComponent } from './components/scan/scan-test.component';
 
 const routes: Routes = [
   {
     path: 'scan',
-    component: ScanTestComponent
+    loadChildren: () => import('./components/scan/scan.module').then(m => m.ScanModule)
   },
   {
     path: 'batmongus',
