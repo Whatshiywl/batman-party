@@ -5,5 +5,8 @@
     (result)="onScanResult($event)"
     >
   </batman-scan>
-  <router-outlet></router-outlet>
+  <router-outlet
+    (activate)="onOutletActivate($event)"
+    (deactivate)="onOutletDeactivate()">
+  </router-outlet>
 </div>

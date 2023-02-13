@@ -23,7 +23,8 @@ html, body, app-root {
   justify-content: center;
   align-items: center;
 
-  > .batman-flex-body {
+  .batman-flex-body {
+    position: relative;
     z-index: 1;
     max-height: 100vh;
     max-width: 100vw;

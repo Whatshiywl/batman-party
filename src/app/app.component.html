@@ -1,9 +1,11 @@
-<span
-  *ngFor="let laugh of laughs"
-  class="laugh noselect"
-  [style.left.%]="laugh.x"
-  [style.top.%]="laugh.y"
-  [style.animationDuration.s]="laugh.duration">
-  {{ laugh.text }}
-</span>
+<div class="laughs">
+  <span
+    *ngFor="let laugh of laughs"
+    class="noselect"
+    [style.left.%]="laugh.x"
+    [style.top.%]="laugh.y"
+    [style.animationDuration.s]="laugh.duration">
+    {{ laugh.text }}
+  </span>
+</div>
 <router-outlet></router-outlet>

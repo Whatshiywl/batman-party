@@ -6,7 +6,7 @@
   100% { font-size: 1em;    transform: rotate(20deg); opacity: 0.2; }
 }
 
-span.laugh {
+.laughs > span {
   position: fixed;
   animation-name: laugh;
   animation-timing-function: steps(1);

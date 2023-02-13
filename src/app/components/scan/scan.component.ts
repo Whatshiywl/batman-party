@@ -7,8 +7,7 @@ import { Result } from "@zxing/library";
 <div class="scanner-wrapper">
   <span *ngIf="debug">{{lastScan || 'scanning...'}}</span>
   <zxing-scanner
-    class="batman-flex-body"
-    [delayBetweenScanSuccess]="2000"
+    [delayBetweenScanSuccess]="delayBetweenScanSuccess"
     [autofocusEnabled]="true"
     (scanComplete)="onComplete($event)">
   </zxing-scanner>
@@ -34,6 +33,8 @@ export class ScanComponent {
   public lastScan: string | undefined = undefined;
 
   @Input() debug: boolean = false;
+  @Input() delayBetweenScanSuccess: number = 2000;
+
   @Output() result: EventEmitter<string> = new EventEmitter();
 
   onComplete(result: Result) {

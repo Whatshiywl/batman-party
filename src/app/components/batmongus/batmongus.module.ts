@@ -1,10 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { SecretGuard } from "src/app/shared/secret/secret.guard";
+import { SecretModule } from "src/app/shared/secret/secret.module";
 import { ScanModule } from "../scan/scan.module";
 import { BatmongusComponent } from "./batmongus.component";
 import { BatmongusService } from "./batmongus.service";
-import { BatmongusButtonRoomComponent } from "./rooms/button-room.component";
+import { BatmongusButtonRoomComponent } from "./rooms/button/button-room.component";
 
 const routes: Routes = [
   {
@@ -12,8 +14,10 @@ const routes: Routes = [
     component: BatmongusComponent,
     children: [
       {
-        path: 'room/button',
-        component: BatmongusButtonRoomComponent
+        path: 'rooms/button',
+        component: BatmongusButtonRoomComponent,
+        canActivate: [ SecretGuard ],
+        data: { rejectTo: '/batmongus' }
       },
     ]
   },
@@ -27,6 +31,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
+    SecretModule,
     ScanModule
   ],
   declarations: [
@@ -38,7 +43,6 @@ const routes: Routes = [
   ],
   exports: [
     BatmongusComponent
-  ],
-  bootstrap: [BatmongusComponent]
+  ]
 })
 export class BatmongusModule { }

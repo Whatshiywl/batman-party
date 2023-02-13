@@ -5,7 +5,7 @@ import { InviteComponent } from './components/invite.component';
 const routes: Routes = [
   {
     path: 'scan',
-    loadChildren: () => import('./components/scan/scan.module').then(m => m.ScanModule)
+    loadChildren: () => import('./components/scan/scan.module').then(m => m.ScanModule.asRouted())
   },
   {
     path: 'batmongus',
