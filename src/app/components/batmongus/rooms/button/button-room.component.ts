@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit } from "@angular/core";
 import { Observable } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
-import { BatmongusButtomRoomService, ButtonState } from "./button-room-service";
+import { BatmongusButtomRoomService, ButtonState } from "./button-room.service";
 
 @Component({
   selector: 'batman-batmongus-button-room',
