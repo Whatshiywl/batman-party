@@ -12,7 +12,7 @@ export interface ButtonState {
 }
 
 @Injectable()
-export class BatmongusButtomRoomService {
+export class BatmongusButtonRoomService {
   private roomRef: AngularFirestoreDocument<BatmongusButtonRoom>;
   private room$?: BatmongusButtonRoom;
   private buttonsCol: AngularFirestoreCollection<ButtonState>;

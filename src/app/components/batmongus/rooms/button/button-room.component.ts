@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit } from "@angular/core";
 import { Observable } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
-import { BatmongusButtomRoomService, ButtonState } from "./button-room.service";
+import { BatmongusButtonRoomService, ButtonState } from "./button-room.service";
 
 @Component({
   selector: 'batman-batmongus-button-room',
@@ -40,7 +40,7 @@ export class BatmongusButtonRoomComponent extends BatmongusRoomComponent impleme
   protected button$: Observable<ButtonState| undefined>;
 
   constructor(
-    private buttonRoomService: BatmongusButtomRoomService
+    private buttonRoomService: BatmongusButtonRoomService
   ) {
     super();
     this.button$ = this.buttonRoomService.getButton$(1);

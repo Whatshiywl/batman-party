@@ -6,7 +6,7 @@ import { SecretModule } from "src/app/shared/secret/secret.module";
 import { ScanModule } from "../scan/scan.module";
 import { BatmongusComponent } from "./batmongus.component";
 import { BatmongusService } from "./batmongus.service";
-import { BatmongusButtomRoomService } from "./rooms/button/button-room.service";
+import { BatmongusButtonRoomService } from "./rooms/button/button-room.service";
 import { BatmongusButtonRoomComponent } from "./rooms/button/button-room.component";
 
 const routes: Routes = [
@@ -41,7 +41,7 @@ const routes: Routes = [
   ],
   providers: [
     BatmongusService,
-    BatmongusButtomRoomService
+    BatmongusButtonRoomService
   ],
   exports: [
     BatmongusComponent
