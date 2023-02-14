@@ -28,6 +28,7 @@ export class BatmongusButtonRoomService {
       const timestamp = claimedAt - timeout;
       const buttons = await this.buttonsCol.ref.where('claimedAt', '<', timestamp).get();
       const doc = buttons.docs[Math.floor(Math.random() * buttons.size)];
+      if (!doc) return;
       const { ref } = doc;
       await transaction.get(ref);
       transaction.update(ref, { claimedAt, pressed: false });
