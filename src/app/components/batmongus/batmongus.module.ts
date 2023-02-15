@@ -8,6 +8,7 @@ import { BatmongusComponent } from "./batmongus.component";
 import { BatmongusService } from "./batmongus.service";
 import { BatmongusButtonRoomService } from "./rooms/button/button-room.service";
 import { BatmongusButtonRoomComponent } from "./rooms/button/button-room.component";
+import { BATMONGUS_ROOM_TIMEOUT } from "./batmongus.types";
 
 const routes: Routes = [
   {
@@ -18,7 +19,11 @@ const routes: Routes = [
         path: 'rooms/button',
         component: BatmongusButtonRoomComponent,
         canActivate: [ SecretGuard ],
-        data: { rejectTo: '/batmongus' }
+        data: { rejectTo: '/batmongus' },
+        providers: [
+          BatmongusButtonRoomService,
+          { provide: BATMONGUS_ROOM_TIMEOUT, useValue: 10000 }
+        ]
       },
     ]
   },
@@ -40,8 +45,7 @@ const routes: Routes = [
     BatmongusButtonRoomComponent
   ],
   providers: [
-    BatmongusService,
-    BatmongusButtonRoomService
+    BatmongusService
   ],
   exports: [
     BatmongusComponent

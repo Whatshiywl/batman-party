@@ -1,10 +1,8 @@
-import { Injectable } from "@angular/core";
-import { AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
+import { Inject, Injectable } from "@angular/core";
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from "@angular/fire/compat/firestore";
+import { BehaviorSubject, filter, map, Subject, switchMap, tap } from "rxjs";
 import { Puzzle } from "../../batmongus.service";
-
-export interface BatmongusButtonRoom extends Puzzle {
-  maxButtons: number;
-}
+import { BATMONGUS_ROOM_TIMEOUT } from "../../batmongus.types";
 
 export interface ButtonState {
   claimedAt: number;
@@ -13,13 +11,33 @@ export interface ButtonState {
 
 @Injectable()
 export class BatmongusButtonRoomService {
-  private buttonsCol: AngularFirestoreCollection<ButtonState>;
+  public readonly completed$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  private readonly roomRef: AngularFirestoreDocument<Puzzle>;
+  private readonly buttonsCol: AngularFirestoreCollection<ButtonState>;
+  private readonly buttonChange: Subject<{ index: string, pressed: boolean }> = new Subject();
 
   constructor(
-    private afs: AngularFirestore
+    private afs: AngularFirestore,
+    @Inject(BATMONGUS_ROOM_TIMEOUT) private readonly injectedTimeout: number,
   ) {
-    const roomRef = this.afs.collection('puzzles/batmongus/rooms').doc<BatmongusButtonRoom>('button');
-    this.buttonsCol = roomRef.collection('buttons');
+    this.roomRef = this.afs.collection('puzzles/batmongus/rooms').doc<Puzzle>('button');
+    this.roomRef.valueChanges().pipe(map(room => room?.completed || false)).subscribe(completed => this.completed$.next(completed));
+    this.buttonsCol = this.roomRef.collection('buttons');
+
+    this.buttonChange.pipe(
+      tap(({ index, pressed }) => this.setButtonState(index, pressed)),
+      filter(({ pressed }) => pressed),
+      switchMap(() => this.buttonsCol.get()),
+      map(snapshot => snapshot.docs.map(doc => doc.data())),
+      map(buttons => {
+        const now = Date.now();
+        return buttons.every(button => {
+          if (!button.pressed) return false;
+          if ((now - button.claimedAt) > this.injectedTimeout) return false;
+          return true;
+        });
+      })
+    ).subscribe(async completed => await this.setCompleted(completed));
   }
 
   async claim(timeout: number) {
@@ -37,11 +55,11 @@ export class BatmongusButtonRoomService {
   }
 
   pressButton(index: string) {
-    return this.setButtonState(index, true);
+    this.buttonChange.next({ index, pressed: true });
   }
 
   releaseButton(index: string) {
-    return this.setButtonState(index, false);
+    this.buttonChange.next({ index, pressed: false });
   }
 
   private setButtonState(index: string, pressed: boolean) {
@@ -50,6 +68,10 @@ export class BatmongusButtonRoomService {
 
   getButton$(index: string) {
     return this.buttonsCol.doc(index).valueChanges();
+  }
+
+  private setCompleted(completed: boolean) {
+    return this.roomRef.update({ completed });
   }
 
 }
