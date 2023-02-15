@@ -1,17 +1,30 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { faBolt } from "@fortawesome/free-solid-svg-icons";
 import { Result } from "@zxing/library";
 
 @Component({
   selector: 'batman-scan',
   template: `
-<div class="scanner-wrapper">
+<div *ngIf="hasCameras" class="scanner-wrapper">
   <span *ngIf="debug">{{lastScan || 'scanning...'}}</span>
   <zxing-scanner
+    #scanner
     [delayBetweenScanSuccess]="delayBetweenScanSuccess"
     [autofocusEnabled]="true"
-    (scanComplete)="onComplete($event)">
+    [torch]="torch"
+    (scanComplete)="onComplete($event)"
+    (camerasFound)="onCameras(true)"
+    (camerasNotFound)="onCameras(false)"
+    (permissionResponse)="onPresmissionResponse($event)">
   </zxing-scanner>
+  <fa-icon
+    *ngIf="scanner.torchCompatible | async"
+    class="scan-torch"
+    [icon]="faBolt"
+    (click)="torch = !torch">
+  </fa-icon>
 </div>
+<div *ngIf="!hasCameras" style="font-size: 3em">No cameras found</div>
   `,
   styles: [`
 .scanner-wrapper {
@@ -26,11 +39,28 @@ import { Result } from "@zxing/library";
     font-family: Helvetica, Arial, Sans-Serif;
     overflow-wrap: break-word;
   }
+
+  > fa-icon.scan-torch {
+    position: absolute;
+    background-color: black;
+    border-radius: 50%;
+    width: 2em;
+    height: 2em;
+    top: 10px;
+    right: 10px;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
   `]
 })
 export class ScanComponent {
-  public lastScan: string | undefined = undefined;
+  protected lastScan: string | undefined = undefined;
+  protected faBolt = faBolt;
+  protected torch: boolean = false;
+  protected hasCameras: boolean = true;
 
   @Input() debug: boolean = false;
   @Input() delayBetweenScanSuccess: number = 2000;
@@ -42,4 +72,13 @@ export class ScanComponent {
     this.lastScan = text;
     this.result.emit(text);
   }
+
+  onCameras(found: boolean) {
+    this.hasCameras = found;
+  }
+
+  onPresmissionResponse(response: boolean) {
+    if (this.hasCameras && !response) alert('Você precisa habilitar o uso da câmera para o funcionamento correto da aplicação.');
+  }
+
 }
