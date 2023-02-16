@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { SecretGuard } from "src/app/shared/secret/secret.guard";
-import { SecretModule } from "src/app/shared/secret/secret.module";
+import { SecretGuard } from "src/app/components/secret/secret.guard";
+import { SecretModule } from "src/app/components/secret/secret.module";
 import { ScanModule } from "../scan/scan.module";
 import { BatmongusComponent } from "./batmongus.component";
 import { BatmongusService } from "./batmongus.service";
