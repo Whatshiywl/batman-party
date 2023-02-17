@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { interval, Subject, takeUntil } from 'rxjs';
+import { LocalStorageService } from './shared/local-storage.service';
 
 @Component({
   selector: 'app-root',
@@ -29,6 +30,11 @@ export class AppComponent implements OnInit, OnDestroy {
   ]
 
   private unsub$: Subject<void> = new Subject();
+
+  constructor(localStorageService: LocalStorageService) {
+    const id = Math.random().toString(36).substring(2);
+    localStorageService.internalId = id;
+  }
 
   ngOnInit() {
     for (const laugh of this.laughs) {

@@ -1,22 +1,35 @@
 import { Component } from "@angular/core";
-import { Observable } from "rxjs";
+import { filter, map, Observable, switchMap } from "rxjs";
+import { ConfigService } from "src/app/shared/config.service";
+import { LocalStorageService } from "src/app/shared/local-storage.service";
 import { Notification, NotificationService } from "./notification.service";
 
 @Component({
   selector: 'batman-notification',
   template: `
-<div *ngIf="notification$ | async" class="batman-notification-panel">
+<div *ngIf="
+    (showNotifs$ | async) &&
+    !(seenNotif$ | async) &&
+    (notification$ | async) as notif"
+  class="batman-notification-panel noselect">
   <div class="batman-notification-modal">
     <div class="batman-notification-header">
-      {{ (notification$ | async)?.header }}
+      {{ notif.header }}
     </div>
     <div class="batman-notification-image">
-      <img [src]="'assets/images/' + (notification$ | async)?.image">
+      <img [src]="'assets/images/' + notif.image">
     </div>
     <div class="batman-notification-body">
-      <span>{{ (notification$ | async)?.text }}</span>
-      <div class="batman-notification-button">Aceitar</div>
-      <div class="batman-notification-button">Rejeitar</div>
+      <span>{{ notif.text }}</span>
+      <div *ngIf="notif.type === 'announcement'"
+        class="batman-notification-button batman-notification-button-accept"
+        (click)="onYes(notif)">OK</div>
+      <div *ngIf="notif.type === 'question'"
+        class="batman-notification-button batman-notification-button-accept"
+        (click)="onYes(notif)">Aceitar</div>
+      <div *ngIf="notif.type === 'question'"
+        class="batman-notification-button batman-notification-button-reject"
+        (click)="onNo(notif)">Rejeitar</div>
     </div>
   </div>
 </div>
@@ -40,13 +53,13 @@ import { Notification, NotificationService } from "./notification.service";
     left: calc((100vw - $width) / 2);
     right: calc((100vw - $width) / 2);
     background-color: white;
-    border-radius: 50px;
+    border-radius: 5vmin;
     box-shadow: black 5px 5px 10px;
     color: black;
     font-size: 36px;
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: 100px $width 1fr;
+    grid-template-rows: 10vmin $width 1fr;
 
     > .batman-notification-header {
       display: flex;
@@ -75,28 +88,48 @@ import { Notification, NotificationService } from "./notification.service";
 
       > .batman-notification-button {
         padding: 5px;
+        font-family: Verdana, Helvetica, Arial, sans-serif;
+        font-size: 24px;
 
-        &:first-of-type {
+        &.batman-notification-button-accept {
           background-color: #52ab52;
         }
 
-        &:last-of-type {
+        &.batman-notification-button-reject {
           background-color: #e75c5c;
         }
       }
     }
-
   }
 }
   `]
 })
 export class NotificationComponent {
+  protected readonly showNotifs$: Observable<boolean> = new Observable();
+  protected readonly seenNotif$: Observable<boolean> = new Observable();
   protected readonly notification$: Observable<Notification> = new Observable();
 
   constructor(
+    private configService: ConfigService,
+    private localStorageService: LocalStorageService,
     private notificationService: NotificationService
   ) {
+    this.showNotifs$ = this.configService.config$.pipe(map(config => config.showNotifications));
     this.notification$ = this.notificationService.notification$;
+    this.seenNotif$ = this.notification$.pipe(
+      filter(notif => Boolean(notif)),
+      switchMap(notif => this.localStorageService.seenNotifications$.pipe(
+        map(seen => Boolean(seen[notif.name]))
+      ))
+    );
+  }
+
+  onYes(notification: Notification) {
+    return this.notificationService.onAnswer(notification, 'yes');
+  }
+
+  onNo(notification: Notification) {
+    return this.notificationService.onAnswer(notification, 'no');
   }
 
 }

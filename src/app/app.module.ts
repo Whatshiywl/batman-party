@@ -8,6 +8,8 @@ import { environment } from '../environments/environment';
 import { AngularFireModule } from '@angular/fire/compat';
 import { NotificationComponent } from './components/notification/notification.component';
 import { NotificationService } from './components/notification/notification.service';
+import { LocalStorageService } from './shared/local-storage.service';
+import { ConfigService } from './shared/config.service';
 
 @NgModule({
   declarations: [
@@ -21,6 +23,8 @@ import { NotificationService } from './components/notification/notification.serv
     AngularFireModule.initializeApp(environment.firebase)
   ],
   providers: [
+    ConfigService,
+    LocalStorageService,
     NotificationService
   ],
   bootstrap: [AppComponent]
