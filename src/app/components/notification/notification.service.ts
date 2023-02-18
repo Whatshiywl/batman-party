@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { AngularFirestore } from "@angular/fire/compat/firestore";
+import { AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
 import { Router } from "@angular/router";
-import { map, Observable } from "rxjs";
+import { filter, map, Observable } from "rxjs";
 import { LocalStorageService } from "src/app/shared/local-storage.service";
 
 export interface Notification {
@@ -17,17 +17,28 @@ export interface Notification {
 
 @Injectable()
 export class NotificationService {
-  public readonly notification$: Observable<Notification> = new Observable();
+  public readonly collection: AngularFirestoreCollection<Notification>;
+  public readonly notification$: Observable<Notification>;
+  private blocked: boolean = false;
 
   constructor(
     private afs: AngularFirestore,
     private router: Router,
     private localStorageService: LocalStorageService
   ) {
-    const collection = this.afs.collection<Notification>('notifications');
-    this.notification$ = collection.valueChanges().pipe(
+    this.collection = this.afs.collection<Notification>('notifications');
+    this.notification$ = this.collection.valueChanges().pipe(
+      filter(_ => !this.blocked),
       map(notifications => notifications.filter(notification => notification.enabled)[0])
     );
+  }
+
+  block() {
+    this.blocked = true;
+  }
+
+  unblock() {
+    this.blocked = false;
   }
 
   async onAnswer(notification: Notification, answer: 'yes' | 'no') {
@@ -44,6 +55,10 @@ export class NotificationService {
     const notifs = this.localStorageService.seenNotifications;
     notifs[notification.name] = true;
     this.localStorageService.seenNotifications = notifs;
+  }
+
+  update(id: string, data: Partial<Notification>) {
+    return this.collection.doc(id).update(data);
   }
 
   private onRedirect(path: string) {

@@ -105,9 +105,9 @@ import { Notification, NotificationService } from "./notification.service";
   `]
 })
 export class NotificationComponent {
-  protected readonly showNotifs$: Observable<boolean> = new Observable();
-  protected readonly seenNotif$: Observable<boolean> = new Observable();
-  protected readonly notification$: Observable<Notification> = new Observable();
+  protected readonly showNotifs$: Observable<boolean>;
+  protected readonly seenNotif$: Observable<boolean>;
+  protected readonly notification$: Observable<Notification>;
 
   constructor(
     private configService: ConfigService,

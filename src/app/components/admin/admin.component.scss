@@ -1,0 +1,43 @@
+.admin-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-rows: 5vh 1fr;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  color: black;
+
+  > .admin-tabs {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    background-color: white;
+    border-bottom: 1px solid black;
+
+    > .admin-tab {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      padding: 0 5px;
+      background-color: lightgray;
+      border: 1px solid gray;
+      box-sizing: border-box;
+
+      &.tab-selected {
+        background-color: darkgray;
+      }
+    }
+  }
+
+  > .admin-content {
+    background-color: white;
+
+    > .admin-config, .admin-notifs {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

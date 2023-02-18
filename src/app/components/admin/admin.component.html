@@ -1,0 +1,48 @@
+<div class="admin-wrapper">
+  <div class="admin-tabs">
+    <div *ngFor="let tab of tabs"
+      class="admin-tab"
+      [class.tab-selected]="selectedTab === tab.name"
+      (click)="selectedTab = tab.name">
+      {{ tab.name }}
+    </div>
+  </div>
+  <div [ngSwitch]="selectedTab" class="admin-content">
+    <div *ngSwitchCase="'Config'" class="admin-config">
+      <div *ngIf="(devConfig.valueChanges| async) as config"
+        class="config-content">
+        <h3>Development</h3>
+        <input
+          #devShowNotifs
+          type="checkbox"
+          [checked]="config.showNotifications"
+          (change)="onShowNotifsChange(devConfig.doc, devShowNotifs.checked)"
+          name="config-prod-shownotifs"
+          id="config-prod-shownotifs"> Show notifications
+      </div>
+      <div *ngIf="(prodConfig.valueChanges| async) as config"
+        class="config-content">
+        <h3>Production</h3>
+        <input
+          #prodShowNotifs
+          type="checkbox"
+          [checked]="config.showNotifications"
+          (change)="onShowNotifsChange(prodConfig.doc, prodShowNotifs.checked)"
+          name="config-prod-shownotifs"
+          id="config-prod-shownotifs"> Show notifications
+      </div>
+    </div>
+    <div *ngSwitchCase="'Notifications'" class="admin-notifs">
+      <div *ngFor="let notif of (notifs$ | async)">
+        <h3>{{ notif.name }} ({{ notif.type }})</h3>
+        <input
+          #notifCheckbox
+          type="checkbox"
+          [checked]="notif.enabled"
+          (change)="onNotifChange(notif.id, notifCheckbox.checked)"
+          [name]="'notif-' + notif.name"
+          [id]="'notif-' + notif.name"> Enabled
+      </div>
+    </div>
+  </div>
+</div>

@@ -12,6 +12,10 @@ const routes: Routes = [
     loadChildren: () => import('./components/batmongus/batmongus.module').then(m => m.BatmongusModule)
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./components/admin/admin.module').then(m => m.AdminModule)
+  },
+  {
     path: '',
     pathMatch: 'full',
     component: InviteComponent
