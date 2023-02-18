@@ -44,5 +44,9 @@
           [id]="'notif-' + notif.name"> Enabled
       </div>
     </div>
+    <batmongus-admin
+      *ngSwitchCase="'Batmongus'"
+      class="admin-batmongus">
+    </batmongus-admin>
   </div>
 </div>

@@ -74,4 +74,18 @@ export class BatmongusButtonRoomService {
     return this.roomRef.update({ completed });
   }
 
+  async reset(buttons: number) {
+    await this.roomRef.update({ completed: false });
+    const snapshot = await this.buttonsCol.ref.get();
+    for (const doc of snapshot.docs) {
+      await doc.ref.delete();
+    }
+    for (let i = 0; i < buttons; i++) {
+      await this.buttonsCol.doc(i.toString()).set({
+        claimedAt: 0,
+        pressed: false
+      });
+    }
+  }
+
 }

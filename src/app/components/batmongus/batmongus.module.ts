@@ -9,6 +9,8 @@ import { BatmongusService } from "./batmongus.service";
 import { BatmongusButtonRoomService } from "./rooms/button/button-room.service";
 import { BatmongusButtonRoomComponent } from "./rooms/button/button-room.component";
 import { BATMONGUS_ROOM_TIMEOUT } from "./batmongus.types";
+import { ScanComponent } from "../scan/scan.component";
+import { BatmongusAdminComponent } from "./batmongus-admin.component";
 
 const routes: Routes = [
   {
@@ -36,19 +38,40 @@ const routes: Routes = [
 @NgModule({
   imports: [
     CommonModule,
-    RouterModule.forChild(routes),
     SecretModule,
     ScanModule
+  ],
+  declarations: [
+    BatmongusAdminComponent
+  ],
+  providers: [
+    BatmongusService,
+    BatmongusButtonRoomService,
+    { provide: BATMONGUS_ROOM_TIMEOUT, useValue: 0 }
+  ],
+  exports: [
+    ScanComponent,
+    BatmongusAdminComponent
+  ]
+})
+export class BatmongusModule {
+  static asRouted() {
+    return RoutedBatmongusModule;
+  }
+}
+
+@NgModule({
+  imports: [
+    CommonModule,
+    BatmongusModule,
+    RouterModule.forChild(routes)
   ],
   declarations: [
     BatmongusComponent,
     BatmongusButtonRoomComponent
   ],
-  providers: [
-    BatmongusService
-  ],
   exports: [
     BatmongusComponent
   ]
 })
-export class BatmongusModule { }
+class RoutedBatmongusModule { }

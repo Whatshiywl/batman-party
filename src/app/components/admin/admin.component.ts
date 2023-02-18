@@ -19,6 +19,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   protected tabs: Tab[] = [
     { name: 'Config' },
     { name: 'Notifications' },
+    { name: 'Batmongus' },
   ];
   protected selectedTab: string = this.tabs[0].name;
 
