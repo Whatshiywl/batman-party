@@ -9,6 +9,8 @@ import { BatmongusService } from "./batmongus.service";
 import { BatmongusButtonRoomService } from "./rooms/button/button-room.service";
 import { BatmongusButtonRoomComponent } from "./rooms/button/button-room.component";
 import { BATMONGUS_ROOM_TIMEOUT } from "./batmongus.types";
+import { BatmongusGeniusRoomComponent } from "./rooms/genius/genius-room.component";
+import { BatmongusGeniusRoomService } from "./rooms/genius/genius-room.service";
 
 const routes: Routes = [
   {
@@ -23,6 +25,16 @@ const routes: Routes = [
         providers: [
           BatmongusButtonRoomService,
           { provide: BATMONGUS_ROOM_TIMEOUT, useValue: 10000 }
+        ]
+      },
+      {
+        path: 'rooms/genius',
+        component: BatmongusGeniusRoomComponent,
+        canActivate: [ SecretGuard ],
+        data: { rejectTo: '/batmongus' },
+        providers: [
+          BatmongusGeniusRoomService,
+          { provide: BATMONGUS_ROOM_TIMEOUT, useValue: 10000000 }
         ]
       },
     ]
@@ -42,7 +54,8 @@ const routes: Routes = [
   ],
   declarations: [
     BatmongusComponent,
-    BatmongusButtonRoomComponent
+    BatmongusButtonRoomComponent,
+    BatmongusGeniusRoomComponent
   ],
   providers: [
     BatmongusService
