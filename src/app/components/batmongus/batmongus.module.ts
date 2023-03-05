@@ -54,24 +54,19 @@ const routes: Routes = [
     BatmongusAdminComponent
   ]
 })
-export class BatmongusModule {
-  static asRouted() {
-    return RoutedBatmongusModule;
-  }
-}
+export class BatmongusAdminModule { }
 
 @NgModule({
   imports: [
     CommonModule,
-    BatmongusModule,
+    BatmongusAdminModule,
     RouterModule.forChild(routes)
   ],
   declarations: [
-    BatmongusComponent,
-    BatmongusButtonRoomComponent
+    BatmongusComponent
   ],
   exports: [
     BatmongusComponent
   ]
 })
-class RoutedBatmongusModule { }
+export class BatmongusModule { }

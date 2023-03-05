@@ -4,9 +4,12 @@ import { filter, map, merge, Observable, repeat, Subject, takeUntil, tap, timer,
 import { BatmongusRoomComponent } from "../room.component";
 import { BatmongusButtonRoomService, ButtonState } from "./button-room.service";
 import { BATMONGUS_ROOM_TIMEOUT } from "../../batmongus.types";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'batman-batmongus-button-room',
+  standalone: true,
+  imports: [ CommonModule ],
   template: `
   <div class="batman-flex-body button-room">
     <div *ngIf="!(completed$ | async) && ref"
@@ -17,7 +20,7 @@ import { BATMONGUS_ROOM_TIMEOUT } from "../../batmongus.types";
     (touchstart)="press()"
     (mouseup)="release()"
     (touchend)="release()">
-      {{ ref.id }}
+      ?
     </div>
     <div *ngIf="!(completed$ | async) && ref === null">This room is full</div>
     <div *ngIf="completed$ | async">Done!</div>

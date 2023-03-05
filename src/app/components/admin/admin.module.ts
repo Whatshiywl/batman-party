@@ -1,14 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { BatmongusModule } from "../batmongus/batmongus.module";
+import { BatmongusAdminModule } from "../batmongus/batmongus.module";
 import { AdminComponent } from "./admin.component";
 import { AdminService } from "./admin.service";
 
 @NgModule({
   imports: [
     CommonModule,
-    BatmongusModule,
+    BatmongusAdminModule,
     RouterModule.forChild([{
       path: '',
       component: AdminComponent

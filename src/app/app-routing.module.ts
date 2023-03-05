@@ -9,7 +9,7 @@ const routes: Routes = [
   },
   {
     path: 'batmongus',
-    loadChildren: () => import('./components/batmongus/batmongus.module').then(m => m.BatmongusModule.asRouted())
+    loadChildren: () => import('./components/batmongus/batmongus.module').then(m => m.BatmongusModule)
   },
   {
     path: 'admin',
