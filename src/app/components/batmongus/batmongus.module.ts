@@ -11,6 +11,8 @@ import { BatmongusButtonRoomComponent } from "./rooms/button/button-room.compone
 import { BATMONGUS_ROOM_TIMEOUT } from "./batmongus.types";
 import { ScanComponent } from "../scan/scan.component";
 import { BatmongusAdminComponent } from "./batmongus-admin.component";
+import { ModalComponent } from "../modal/modal.component";
+import { SharedModule } from "src/app/shared.module";
 
 const routes: Routes = [
   {
@@ -60,7 +62,8 @@ export class BatmongusAdminModule { }
   imports: [
     CommonModule,
     BatmongusAdminModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    SharedModule
   ],
   declarations: [
     BatmongusComponent

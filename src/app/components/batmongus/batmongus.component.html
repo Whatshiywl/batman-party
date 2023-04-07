@@ -1,8 +1,9 @@
 <div class="batman-flex">
   <batman-scan
-    *ngIf="!scanResult"
+    *ngIf="!scanResult || puzzle"
     class="batman-flex-body"
     (result)="onScanResult($event)"
+    [debug]="false"
     >
   </batman-scan>
   <router-outlet
@@ -10,3 +11,14 @@
     (deactivate)="onOutletDeactivate()">
   </router-outlet>
 </div>
+<batman-modal
+  *ngIf="puzzle"
+  type="question"
+  [header]="puzzle.name"
+  [image]="puzzle.image"
+  [text]="puzzle.instructions"
+  acceptButton="Entrar"
+  rejectButton="Cancelar"
+  (accept)="onAcceptRoom()"
+  (reject)="onRejectRoom()">
+</batman-modal>

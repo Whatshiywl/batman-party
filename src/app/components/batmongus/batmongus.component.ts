@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Params, Router } from "@angular/router";
 import { debounceTime, map, skipUntil, Subject, takeUntil, timer } from "rxjs";
-import { BatmongusService } from "./batmongus.service";
+import { BatmongusService, Puzzle } from "./batmongus.service";
 import { BatmongusRoomComponent } from "./rooms/room.component";
 
 @Component({
@@ -10,7 +10,11 @@ import { BatmongusRoomComponent } from "./rooms/room.component";
   styleUrls: ['./batmongus.component.scss']
 })
 export class BatmongusComponent implements OnInit, OnDestroy {
-  protected scanResult: string | undefined;
+  protected puzzle: Puzzle | undefined;
+  protected scanResult: {
+    path: string,
+    queryParams: Params | undefined
+  } | undefined;
 
   private scan$: Subject<string> = new Subject();
   private timeout$: Subject<void> = new Subject();
@@ -45,11 +49,25 @@ export class BatmongusComponent implements OnInit, OnDestroy {
   }
 
   async enterRoom(path: string, queryParams?: Params) {
-    this.scanResult = path;
+    const roomName = path.split('/').pop() as string;
+    this.puzzle = await this.batmongusService.getRoomById(roomName);
+    this.scanResult = { path, queryParams };
+  }
+
+  async onAcceptRoom() {
+    this.puzzle = undefined;
+    if (!this.scanResult) return;
+    const { path, queryParams } = this.scanResult;
     await this.router.navigate([ path ], { queryParams });
   }
 
+  async onRejectRoom() {
+    this.puzzle = undefined;
+    this.scanResult = undefined;
+  }
+
   private parseQueryString(queryString: string): Params {
+    if (!queryString) return { };
     return queryString.split('&').reduce((acc, paramPair) => {
       const [ key, value ] = paramPair.split('=');
       acc[key] = value;
