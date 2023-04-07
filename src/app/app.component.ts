@@ -2,32 +2,20 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { interval, Subject, takeUntil } from 'rxjs';
 import { LocalStorageService } from './shared/local-storage.service';
 
+interface Laugh {
+  text: string;
+  x: number;
+  y: number;
+  duration: number;
+};
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  laughs = [
-    this.genLaugh('Hahaha!'),
-    this.genLaugh('HAHAHAHAHA'),
-    this.genLaugh('Hahahahaha'),
-    this.genLaugh('hahahaha'),
-    this.genLaugh('Hahahaha!'),
-    this.genLaugh('HAHAHA'),
-    this.genLaugh('Hahaha!'),
-    this.genLaugh('HAHAHAHAHA'),
-    this.genLaugh('Hahahahaha'),
-    this.genLaugh('hahahaha'),
-    this.genLaugh('Hahahaha!'),
-    this.genLaugh('HAHAHA'),
-    this.genLaugh('Hahaha!'),
-    this.genLaugh('HAHAHAHAHA'),
-    this.genLaugh('Hahahahaha'),
-    this.genLaugh('hahahaha'),
-    this.genLaugh('Hahahaha!'),
-    this.genLaugh('HAHAHA'),
-  ]
+  laughs: Laugh[] = [ ];
 
   private unsub$: Subject<void> = new Subject();
 
@@ -37,6 +25,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.laughs.push(...this.genLaughs('Hahaha!', 4));
+    this.laughs.push(...this.genLaughs('HAHAHAHAHA', 4));
+    this.laughs.push(...this.genLaughs('Hahahahaha', 4));
+    this.laughs.push(...this.genLaughs('hahahaha', 4));
+    this.laughs.push(...this.genLaughs('Hahahaha!', 4));
+    this.laughs.push(...this.genLaughs('HAHAHA', 4));
+
     for (const laugh of this.laughs) {
       interval(laugh.duration * 1000).pipe(takeUntil(this.unsub$))
       .subscribe(() => {
@@ -45,6 +40,14 @@ export class AppComponent implements OnInit, OnDestroy {
         laugh.y = pos.y;
       });
     }
+  }
+
+  private genLaughs(text: string, count: number) {
+    const laughs = [];
+    for (let i = 0; i < count; i++) {
+      laughs.push(this.genLaugh(text));
+    }
+    return laughs;
   }
 
   private genLaugh(text: string) {
