@@ -31,6 +31,31 @@ html, body, app-root {
   }
 }
 
+.batman-grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto 1fr;
+  justify-items: center;
+  align-items: center;
+
+  .batman-grid-header {
+    grid-row: 1;
+  }
+
+  .batman-grid-body {
+    grid-row: 2;
+  }
+
+  .batman-grid-footer {
+    grid-row: 3;
+  }
+}
+
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */

@@ -1,9 +1,8 @@
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { DocumentReference } from "@angular/fire/compat/firestore";
 import { filter, map, merge, Observable, repeat, Subject, takeUntil, tap, timer, withLatestFrom } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
 import { BatmongusButtonRoomService, ButtonState } from "./button-room.service";
-import { BATMONGUS_ROOM_TIMEOUT } from "../../batmongus.types";
 import { CommonModule } from "@angular/common";
 
 @Component({
@@ -11,22 +10,29 @@ import { CommonModule } from "@angular/common";
   standalone: true,
   imports: [ CommonModule ],
   template: `
-  <div class="batman-flex-body button-room">
-    <div *ngIf="!(completed$ | async) && ref"
-    class="button-room-button noselect"
-    [class.button-room-button-pressed]="(button$ | async)?.pressed"
-    [style.background]="getBackground()"
-    (mousedown)="press()"
-    (touchstart)="press()"
-    (mouseup)="release()"
-    (touchend)="release()">
-      ?
+  <div class="batman-grid">
+    <div *ngIf="timeLeft" class="batman-grid-header counter">{{ timeLeft }}</div>
+    <div class="batman-grid-body button-room">
+      <div *ngIf="!(completed$ | async) && ref"
+      class="button-room-button noselect"
+      [class.button-room-button-pressed]="(button$ | async)?.pressed"
+      [style.background]="getBackground()"
+      (mousedown)="press()"
+      (touchstart)="press()"
+      (mouseup)="release()"
+      (touchend)="release()">
+        ?
+      </div>
+      <div *ngIf="!(completed$ | async) && ref === null">This room is full</div>
+      <div *ngIf="completed$ | async">Done!</div>
     </div>
-    <div *ngIf="!(completed$ | async) && ref === null">This room is full</div>
-    <div *ngIf="completed$ | async">Done!</div>
   </div>
   `,
   styles: [`
+.counter {
+  font-size: 25vh;
+}
+
 .button-room {
   display: flex;
   justify-content: center;
@@ -65,16 +71,16 @@ export class BatmongusButtonRoomComponent extends BatmongusRoomComponent impleme
   private readonly destroy$: Subject<void> = new Subject();
 
   constructor(
-    private buttonRoomService: BatmongusButtonRoomService,
-    @Inject(BATMONGUS_ROOM_TIMEOUT) private readonly injectedTimeout: number,
+    private buttonRoomService: BatmongusButtonRoomService
   ) {
     super();
     this.completed$ = this.buttonRoomService.completed$;
   }
 
   async ngOnInit() {
-    this.ref = await this.buttonRoomService.claim(this.injectedTimeout);
-    this.setTimeout(this.ref ? this.injectedTimeout : 2000);
+    const timeout = await this.buttonRoomService.getTimeout();
+    this.ref = await this.buttonRoomService.claim();
+    this.setTimeout(timeout);
     if (!this.ref) {
       this.ref = null;
       return;

@@ -35,6 +35,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
   right: 0;
   background-color: #fff5;
   z-index: 10;
+  font-family: Verdana, Helvetica, Arial, sans-serif;
 
   > .batman-modal-modal {
     $height: 90vh;
@@ -76,14 +77,12 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
       padding: 0 20px;
 
       > span {
-        font-size: 24px;
-        font-weight: bold;
+        font-size: 18px;
         text-align: center;
       }
 
       > .batman-modal-button {
         padding: 5px;
-        font-family: Verdana, Helvetica, Arial, sans-serif;
         font-size: 24px;
 
         &.batman-modal-button-accept {

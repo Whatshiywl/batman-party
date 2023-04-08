@@ -1,8 +1,7 @@
-import { Inject, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from "@angular/fire/compat/firestore";
 import { BehaviorSubject, filter, map, Subject, switchMap, tap } from "rxjs";
 import { Puzzle } from "../../batmongus.service";
-import { BATMONGUS_ROOM_TIMEOUT } from "../../batmongus.types";
 
 export interface ButtonState {
   claimedAt: number;
@@ -15,14 +14,15 @@ export class BatmongusButtonRoomService {
   private readonly roomRef: AngularFirestoreDocument<Puzzle>;
   private readonly buttonsCol: AngularFirestoreCollection<ButtonState>;
   private readonly buttonChange: Subject<{ index: string, pressed: boolean }> = new Subject();
+  private timeout: number = 0;
 
   constructor(
-    private afs: AngularFirestore,
-    @Inject(BATMONGUS_ROOM_TIMEOUT) private readonly injectedTimeout: number,
+    private afs: AngularFirestore
   ) {
     this.roomRef = this.afs.collection('puzzles/batmongus/rooms').doc<Puzzle>('button');
     this.roomRef.valueChanges().pipe(map(room => room?.completed || false)).subscribe(completed => this.completed$.next(completed));
     this.buttonsCol = this.roomRef.collection('buttons');
+    this.getTimeout().then(timeout => this.timeout = timeout);
 
     this.buttonChange.pipe(
       tap(({ index, pressed }) => this.setButtonState(index, pressed)),
@@ -33,17 +33,17 @@ export class BatmongusButtonRoomService {
         const now = Date.now();
         return buttons.every(button => {
           if (!button.pressed) return false;
-          if ((now - button.claimedAt) > this.injectedTimeout) return false;
+          if ((now - button.claimedAt) > this.timeout) return false;
           return true;
         });
       })
     ).subscribe(async completed => await this.setCompleted(completed));
   }
 
-  async claim(timeout: number) {
+  async claim() {
     return this.afs.firestore.runTransaction(async transaction => {
       const claimedAt = Date.now();
-      const timestamp = claimedAt - timeout;
+      const timestamp = claimedAt - this.timeout;
       const buttons = await this.buttonsCol.ref.where('claimedAt', '<', timestamp).get();
       const doc = buttons.docs[Math.floor(Math.random() * buttons.size)];
       if (!doc) return;
@@ -86,6 +86,12 @@ export class BatmongusButtonRoomService {
         pressed: false
       });
     }
+  }
+
+  async getTimeout() {
+    if (this.timeout) return this.timeout;
+    this.timeout = 1000 * ((await this.roomRef.ref.get()).data()?.timeout || 2);
+    return this.timeout;
   }
 
 }

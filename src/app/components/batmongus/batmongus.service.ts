@@ -6,6 +6,7 @@ export interface Puzzle {
   instructions: string;
   image: string;
   completed: boolean;
+  timeout: number;
 }
 
 @Injectable()
