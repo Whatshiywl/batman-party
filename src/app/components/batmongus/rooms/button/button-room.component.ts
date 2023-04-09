@@ -11,7 +11,7 @@ import { CommonModule } from "@angular/common";
   imports: [ CommonModule ],
   template: `
   <div class="batman-grid">
-    <div *ngIf="timeLeft" class="batman-grid-header counter">{{ timeLeft }}</div>
+    <div *ngIf="timeLeft" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
     <div class="batman-grid-body button-room">
       <div *ngIf="!(completed$ | async) && ref"
       class="button-room-button noselect"

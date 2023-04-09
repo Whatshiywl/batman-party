@@ -11,6 +11,8 @@ import { BatmongusButtonRoomComponent } from "./rooms/button/button-room.compone
 import { ScanComponent } from "../scan/scan.component";
 import { BatmongusAdminComponent } from "./batmongus-admin.component";
 import { SharedModule } from "src/app/shared.module";
+import { BatmongusSwitchRoomComponent } from "./rooms/switch/switch-room.component";
+import { BatmongusSwitchRoomService } from "./rooms/switch/switch-room.service";
 
 const routes: Routes = [
   {
@@ -24,6 +26,15 @@ const routes: Routes = [
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusButtonRoomService
+        ]
+      },
+      {
+        path: 'rooms/switch',
+        component: BatmongusSwitchRoomComponent,
+        canActivate: [ SecretGuard ],
+        data: { rejectTo: '/batmongus' },
+        providers: [
+          BatmongusSwitchRoomService
         ]
       },
     ]
@@ -45,7 +56,8 @@ const routes: Routes = [
   ],
   providers: [
     BatmongusService,
-    BatmongusButtonRoomService
+    BatmongusButtonRoomService,
+    BatmongusSwitchRoomService
   ],
   exports: [
     ScanComponent,
