@@ -1,5 +1,11 @@
 import { Injectable } from "@angular/core";
 import { AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
+import { Observable } from "rxjs";
+
+export interface Player {
+  id: string;
+  alive: boolean;
+}
 
 export interface Puzzle {
   name: string;
@@ -11,11 +17,16 @@ export interface Puzzle {
 
 @Injectable()
 export class BatmongusService {
+  public readonly playersCol: AngularFirestoreCollection<Player>;
+  public readonly players$: Observable<Player[]>;
   public readonly roomsCol: AngularFirestoreCollection;
 
   constructor(
     afs: AngularFirestore
   ) {
+    this.playersCol = afs.collection('puzzles/batmongus/players');
+    this.players$ = this.playersCol.valueChanges();
+
     this.roomsCol = afs.collection('puzzles/batmongus/rooms');
   }
 
