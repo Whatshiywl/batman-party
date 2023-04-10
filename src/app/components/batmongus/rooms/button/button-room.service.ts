@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from "@angular/fire/compat/firestore";
-import { BehaviorSubject, filter, map, Subject, switchMap, tap } from "rxjs";
+import { BehaviorSubject, filter, map, Observable, Subject, switchMap, tap } from "rxjs";
 import { Puzzle } from "../../batmongus.service";
 
 export interface ButtonState {
@@ -11,6 +11,7 @@ export interface ButtonState {
 @Injectable()
 export class BatmongusButtonRoomService {
   public readonly completed$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public readonly buttons$: Observable<ButtonState[]>;
   private readonly roomRef: AngularFirestoreDocument<Puzzle>;
   private readonly buttonsCol: AngularFirestoreCollection<ButtonState>;
   private readonly buttonChange: Subject<{ index: string, pressed: boolean }> = new Subject();
@@ -22,6 +23,7 @@ export class BatmongusButtonRoomService {
     this.roomRef = this.afs.collection('puzzles/batmongus/rooms').doc<Puzzle>('button');
     this.roomRef.valueChanges().pipe(map(room => room?.completed || false)).subscribe(completed => this.completed$.next(completed));
     this.buttonsCol = this.roomRef.collection('buttons');
+    this.buttons$ = this.buttonsCol.valueChanges();
     this.getTimeout().then(timeout => this.timeout = timeout);
 
     this.buttonChange.pipe(
