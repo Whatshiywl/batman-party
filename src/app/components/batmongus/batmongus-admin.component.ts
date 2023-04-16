@@ -1,26 +1,14 @@
 import { Component } from "@angular/core";
 import { Observable } from "rxjs";
 import { BatmongusService, Player } from "./batmongus.service";
-import { BatmongusButtonRoomService, ButtonState } from "./rooms/button/button-room.service";
-import { BatmongusSwitchRoomService, SwitchState } from "./rooms/switch/switch-room.service";
-import { BatmongusGeniusRoomService, GeniusButton, GeniusPuzzle } from "./rooms/genius/genius-room.service";
+import { BatmongusButtonRoomService, ButtonSpot } from "./rooms/button/button-room.service";
+import { BatmongusSwitchRoomService, SwitchSpot } from "./rooms/switch/switch-room.service";
+import { BatmongusGeniusRoomService, GeniusSpot, GeniusRoom } from "./rooms/genius/genius-room.service";
 
 @Component({
   selector: 'batmongus-admin',
   template: `
 <div class="batmongus-admin-wrapper">
-  <h1>Players</h1>
-  <table class="batmongus-players">
-    <tbody>
-      <tr
-        *ngFor="let player of (players$ | async)"
-        class="batmongus-player"
-        [class.dead]="!player.alive"
-      >
-        <td>{{ player.id }}</td>
-      </tr>
-    </tbody>
-  </table>
   <h1>Rooms</h1>
   <select
     #batmongusAdminRooms
@@ -92,6 +80,18 @@ import { BatmongusGeniusRoomService, GeniusButton, GeniusPuzzle } from "./rooms/
       </div>
     </div>
   </div>
+  <h1>Players</h1>
+  <table class="batmongus-players">
+    <tbody>
+      <tr
+        *ngFor="let player of (players$ | async)"
+        class="batmongus-player"
+        [class.dead]="!player.alive"
+      >
+        <td>{{ player.id }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
   `,
   styles: [`
@@ -130,14 +130,14 @@ export class BatmongusAdminComponent {
   protected readonly rooms: Promise<string[]>;
 
   protected readonly buttonRoomCompleted$: Observable<boolean>;
-  protected readonly buttonRoomButtons$: Observable<ButtonState[]>;
+  protected readonly buttonRoomButtons$: Observable<ButtonSpot[]>;
 
   protected readonly geniusRoomCompleted$: Observable<boolean>;
-  protected readonly geniusRoomButtons$: Observable<GeniusButton[]>;
-  protected readonly geniusRoomState$: Observable<GeniusPuzzle | undefined>;
+  protected readonly geniusRoomButtons$: Observable<GeniusSpot[]>;
+  protected readonly geniusRoomState$: Observable<GeniusRoom | undefined>;
 
   protected readonly switchRoomCompleted$: Observable<boolean>;
-  protected readonly switchRoomSwitches$: Observable<SwitchState[]>;
+  protected readonly switchRoomSwitches$: Observable<SwitchSpot[]>;
 
   constructor(
     private batmongusService: BatmongusService,
@@ -149,26 +149,26 @@ export class BatmongusAdminComponent {
     this.rooms = this.batmongusService.getRooms();
 
     this.buttonRoomCompleted$ = this.batmongusButtonRoomService.completed$;
-    this.buttonRoomButtons$ = this.batmongusButtonRoomService.buttons$;
+    this.buttonRoomButtons$ = this.batmongusButtonRoomService.roomSpots$;
 
     this.geniusRoomCompleted$ = this.batmongusGeniusRoomService.completed$;
-    this.geniusRoomButtons$ = this.batmongusGeniusRoomService.buttons$;
+    this.geniusRoomButtons$ = this.batmongusGeniusRoomService.roomSpots$;
     this.geniusRoomState$ = this.batmongusGeniusRoomService.roomState$;
 
     this.switchRoomCompleted$ = this.batmongusSwitchRoomService.completed$;
-    this.switchRoomSwitches$ = this.batmongusSwitchRoomService.switches$;
+    this.switchRoomSwitches$ = this.batmongusSwitchRoomService.roomSpots$;
   }
 
-  resetButtonRoom(buttons: number) {
-    return this.batmongusButtonRoomService.reset(buttons);
+  resetButtonRoom(numberOfButtons: number) {
+    return this.batmongusButtonRoomService.reset({ numberOfButtons });
   }
 
-  resetGeniusRoom(buttons: number, length: number) {
-    return this.batmongusGeniusRoomService.reset(buttons, length);
+  resetGeniusRoom(numberOfButtons: number, orderLength: number) {
+    return this.batmongusGeniusRoomService.reset({ numberOfButtons, orderLength });
   }
 
-  resetSwitchRoom(switches: number) {
-    return this.batmongusSwitchRoomService.reset(switches);
+  resetSwitchRoom(numberOfSwitches: number) {
+    return this.batmongusSwitchRoomService.reset({ numberOfSwitches });
   }
 
 }

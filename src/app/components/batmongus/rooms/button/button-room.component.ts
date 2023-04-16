@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { DocumentReference } from "@angular/fire/compat/firestore";
-import { filter, map, merge, Observable, repeat, Subject, takeUntil, tap, timer, withLatestFrom } from "rxjs";
+import { filter, first, map, merge, Observable, repeat, Subject, takeUntil, tap, timer, withLatestFrom } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
-import { BatmongusButtonRoomService, ButtonState } from "./button-room.service";
+import { BatmongusButtonRoomService, ButtonSpot } from "./button-room.service";
 import { CommonModule } from "@angular/common";
 
 @Component({
@@ -11,7 +11,7 @@ import { CommonModule } from "@angular/common";
   imports: [ CommonModule ],
   template: `
   <div class="batman-grid">
-    <div *ngIf="timeLeft" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
+    <div *ngIf="timeLeft && !(completed$ | async) && ref" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
     <div class="batman-grid-body button-room">
       <div *ngIf="!(completed$ | async) && ref"
       class="button-room-button noselect"
@@ -23,8 +23,8 @@ import { CommonModule } from "@angular/common";
       (touchend)="release()">
         ?
       </div>
-      <div *ngIf="!(completed$ | async) && ref === null">This room is full</div>
-      <div *ngIf="completed$ | async">Done!</div>
+      <div *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</div>
+      <div *ngIf="completed$ | async">Feito!</div>
     </div>
   </div>
   `,
@@ -58,17 +58,16 @@ import { CommonModule } from "@angular/common";
 }
   `]
 })
-export class BatmongusButtonRoomComponent extends BatmongusRoomComponent implements OnInit, OnDestroy {
-  protected button$?: Observable<ButtonState | undefined>;
+export class BatmongusButtonRoomComponent extends BatmongusRoomComponent implements OnInit {
+  protected button$?: Observable<ButtonSpot | undefined>;
   protected completed$: Observable<boolean>;
-  protected ref?: DocumentReference<ButtonState> | null;
+  protected ref?: DocumentReference<ButtonSpot> | null;
   protected pressing: boolean = false;
   protected progress: number = 0;
   private readonly dt = 100;
   private readonly timeToPress = 5000;
   private readonly stop$: Subject<void> = new Subject();
   private readonly start$: Subject<void> = new Subject();
-  private readonly destroy$: Subject<void> = new Subject();
 
   constructor(
     private buttonRoomService: BatmongusButtonRoomService
@@ -80,11 +79,9 @@ export class BatmongusButtonRoomComponent extends BatmongusRoomComponent impleme
   async ngOnInit() {
     const timeout = await this.buttonRoomService.getTimeout();
     this.ref = await this.buttonRoomService.claim();
-    this.setTimeout(timeout);
-    if (!this.ref) {
-      this.ref = null;
-      return;
-    };
+    this.setTimeout(this.ref === null ? 5000 : timeout);
+    this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
+    if (!this.ref) return;
     this.button$ = this.buttonRoomService.getButton$(this.ref.id);
 
     timer(0, this.dt).pipe(
@@ -107,10 +104,8 @@ export class BatmongusButtonRoomComponent extends BatmongusRoomComponent impleme
     });
   }
 
-  ngOnDestroy() {
+  protected override async onBeforeDestroy() {
     this.pressing = false;
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected press() {

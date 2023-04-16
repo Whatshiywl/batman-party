@@ -4,7 +4,7 @@ import { Observable, Subject, filter, first, map, of, switchMap, takeUntil, tap,
 import { BatmongusRoomComponent } from "../room.component";
 import { BatmongusGeniusRoomService } from "./genius-room.service";
 import { CommonModule } from "@angular/common";
-import { SpotState } from "../room.service";
+import { RoomSpot } from "../room.service";
 
 @Component({
   selector: 'batman-batmongus-button-room',
@@ -12,7 +12,7 @@ import { SpotState } from "../room.service";
   imports: [ CommonModule ],
   template: `
   <div class="batman-grid">
-    <div *ngIf="timeLeft && ref" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
+    <div *ngIf="timeLeft && !(completed$ | async) && ref" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
     <div class="batman-grid-body button-room">
       <div *ngIf="!(completed$ | async) && ref"
       class="button-room-button noselect"
@@ -21,7 +21,7 @@ import { SpotState } from "../room.service";
       (click)="onPress()">
         ?
       </div>
-      <div *ngIf="!(completed$ | async) && ref === null">Sala cheia, volte mais tarde.</div>
+      <div *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</div>
       <div *ngIf="completed$ | async">Feito!</div>
     </div>
   </div>
@@ -56,13 +56,12 @@ import { SpotState } from "../room.service";
 }
   `]
 })
-export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent implements OnInit, OnDestroy {
+export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent implements OnInit {
   protected completed$: Observable<boolean>;
-  protected ref?: DocumentReference<SpotState> | null;
+  protected ref?: DocumentReference<RoomSpot> | null;
   protected highlighted: boolean = false;
   private highlightCooldown: boolean = false;
   private buttonPress$: Subject<void> = new Subject();
-  private readonly destroy$: Subject<void> = new Subject();
 
   constructor(
     private geniusRoomService: BatmongusGeniusRoomService
@@ -75,7 +74,7 @@ export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent impleme
     const timeout = await this.geniusRoomService.getTimeout();
     this.ref = await this.geniusRoomService.claim();
     this.setTimeout(this.ref === null ? 5000 : timeout);
-    this.geniusRoomService.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
+    this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
     if (!this.ref) return;
     const myColor = this.ref.id;
     this.geniusRoomService.showColor$.pipe(
@@ -111,11 +110,6 @@ export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent impleme
       switchMap(() => timer(sleepAfter as number)),
       tap(() => this.highlightCooldown = false),
     );
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
 }

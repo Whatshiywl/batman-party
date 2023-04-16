@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Params, Router } from "@angular/router";
 import { debounceTime, map, skipUntil, Subject, takeUntil, timer } from "rxjs";
-import { BatmongusService, Puzzle } from "./batmongus.service";
+import { BatmongusService } from "./batmongus.service";
 import { BatmongusRoomComponent } from "./rooms/room.component";
+import { Room } from "./rooms/room.service";
 
 @Component({
   selector: 'batman-batmongus',
@@ -10,7 +11,7 @@ import { BatmongusRoomComponent } from "./rooms/room.component";
   styleUrls: ['./batmongus.component.scss']
 })
 export class BatmongusComponent implements OnInit, OnDestroy {
-  protected puzzle: Puzzle | undefined;
+  protected puzzle: Room | undefined;
   protected scanResult: {
     path: string,
     queryParams: Params | undefined

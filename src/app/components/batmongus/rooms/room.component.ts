@@ -1,15 +1,13 @@
-import { Component, EventEmitter, Output } from "@angular/core";
-import { Subject, filter, interval, map, switchMap, takeUntil, tap } from "rxjs";
+import { Directive, EventEmitter, OnDestroy, Output } from "@angular/core";
+import { Subject, filter, interval, switchMap, takeUntil, tap } from "rxjs";
 
-@Component({
-  selector: 'batman-batmongus-room',
-  template: ''
-})
-export abstract class BatmongusRoomComponent {
+@Directive()
+export abstract class BatmongusRoomComponent implements OnDestroy {
   @Output() timeout: EventEmitter<void> = new EventEmitter();
   private newTimeout$: Subject<number> = new Subject();
-  timeoutValue: number = 0;
-  timeLeft: number = 0;
+  private timeoutValue: number = 0;
+  protected timeLeft: number = 0;
+  protected readonly destroy$: Subject<void> = new Subject();
 
   constructor() {
     this.newTimeout$.pipe(
@@ -33,4 +31,15 @@ export abstract class BatmongusRoomComponent {
   getTimeout() {
     return this.timeoutValue;
   }
+
+  async ngOnDestroy() {
+    await this.onBeforeDestroy();
+    this.destroy$.next();
+    this.destroy$.complete();
+    await this.onAfterDestroy();
+  }
+
+  protected async onBeforeDestroy() {}
+
+  protected async onAfterDestroy() {}
 }

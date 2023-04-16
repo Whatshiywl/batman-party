@@ -1,18 +1,11 @@
 import { Injectable } from "@angular/core";
 import { AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
 import { Observable } from "rxjs";
+import { Room } from "./rooms/room.service";
 
 export interface Player {
   id: string;
   alive: boolean;
-}
-
-export interface Puzzle {
-  name: string;
-  instructions: string;
-  image: string;
-  completed: boolean;
-  timeout: number;
 }
 
 @Injectable()
@@ -37,7 +30,7 @@ export class BatmongusService {
 
   async getRoomById(id: string) {
     const snapshot = await this.roomsCol.doc(id).ref.get();
-    return snapshot.data() as Puzzle;
+    return snapshot.data() as Room;
   }
 
 }

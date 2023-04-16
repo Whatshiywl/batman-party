@@ -1,43 +1,35 @@
 import { Injectable } from "@angular/core";
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from "@angular/fire/compat/firestore";
-import { BehaviorSubject, filter, map, mergeMap, Observable, Subject, switchMap, tap } from "rxjs";
-import { Puzzle } from "../../batmongus.service";
-import { SpotState } from "../room.service";
+import { AngularFirestore } from "@angular/fire/compat/firestore";
+import { filter, map, mergeMap, Subject, switchMap } from "rxjs";
+import { BatmongusRoomService, Room, RoomOptions, RoomSpot } from "../room.service";
 
-export interface SwitchPuzzle extends Puzzle {
+export interface SwitchRoom extends Room {
   numberOfSwitches: number;
 }
 
-export interface SwitchState extends SpotState {
+export interface SwitchSpot extends RoomSpot {
   activated: boolean;
 }
 
+export interface SwitchOptions extends RoomOptions {
+  numberOfSwitches: number;
+}
+
 @Injectable()
-export class BatmongusSwitchRoomService {
-  public readonly completed$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public readonly switches$: Observable<SwitchState[]>;
-  private readonly roomRef: AngularFirestoreDocument<SwitchPuzzle>;
-  private readonly switchesCol: AngularFirestoreCollection<SwitchState>;
+export class BatmongusSwitchRoomService extends BatmongusRoomService<SwitchRoom, SwitchSpot, SwitchOptions> {
   private readonly switchChange: Subject<string> = new Subject();
-  private timeout: number = 0;
   private numberOfSwitches: number = 0;
 
   constructor(
-    private afs: AngularFirestore
+    afs: AngularFirestore
   ) {
-    this.roomRef = this.afs.collection('puzzles/batmongus/rooms').doc<SwitchPuzzle>('switch');
-    this.roomRef.valueChanges().pipe(
-      tap(room => this.numberOfSwitches = room?.numberOfSwitches || 0),
-      map(room => room?.completed || false)
-    ).subscribe(completed => this.completed$.next(completed));
-    this.switchesCol = this.roomRef.collection('switches');
-    this.switches$ = this.switchesCol.valueChanges();
-    this.getTimeout().then(timeout => this.timeout = timeout);
+    super('switch', afs);
+    this.roomRef.valueChanges().subscribe(room => this.numberOfSwitches = room?.numberOfSwitches || 0);
 
     this.switchChange.pipe(
       mergeMap(index => this.toggleSwitchesFromIndex(index)),
       filter(activated => activated),
-      switchMap(() => this.switchesCol.get()),
+      switchMap(() => this.spotsCol.get()),
       map(snapshot => snapshot.docs.map(doc => doc.data())),
       map(switches => {
         return switches.every(switchButton => {
@@ -46,20 +38,6 @@ export class BatmongusSwitchRoomService {
         });
       })
     ).subscribe(async completed => await this.setCompleted(completed));
-  }
-
-  async claim() {
-    return this.afs.firestore.runTransaction(async transaction => {
-      const claimedAt = Date.now();
-      const timestamp = claimedAt - this.timeout;
-      const switches = await this.switchesCol.ref.where('claimedAt', '<', timestamp).get();
-      const doc = switches.docs[Math.floor(Math.random() * switches.size)];
-      if (!doc) return;
-      const { ref } = doc;
-      await transaction.get(ref);
-      transaction.update(ref, { claimedAt });
-      return ref;
-    });
   }
 
   toggleSwitch(index: string) {
@@ -71,9 +49,9 @@ export class BatmongusSwitchRoomService {
     const nextSwitchIndex = ((parseInt(index) + 1) % this.numberOfSwitches).toString();
     return this.afs.firestore.runTransaction(async transaction => {
       const switches = await Promise.all([
-        transaction.get(this.switchesCol.doc(previousSwitchIndex).ref),
-        transaction.get(this.switchesCol.doc(index).ref),
-        transaction.get(this.switchesCol.doc(nextSwitchIndex).ref)
+        transaction.get(this.spotsCol.doc(previousSwitchIndex).ref),
+        transaction.get(this.spotsCol.doc(index).ref),
+        transaction.get(this.spotsCol.doc(nextSwitchIndex).ref)
       ]);
       const updates = switches.map(doc => ({ doc, activated: !(doc.data()?.activated || false)}));
       updates.forEach(({ doc, activated }) => transaction.update(doc.ref, { activated }));
@@ -82,31 +60,19 @@ export class BatmongusSwitchRoomService {
   }
 
   getSwitch(index: string) {
-    return this.switchesCol.doc(index).valueChanges();
+    return this.spotsCol.doc(index).valueChanges();
   }
 
-  private setCompleted(completed: boolean) {
-    return this.roomRef.update({ completed });
+  protected override async getRestartPuzzleState({ numberOfSwitches }: SwitchOptions) {
+    return { numberOfSwitches };
   }
 
-  async reset(numberOfSwitches: number) {
-    await this.roomRef.update({ completed: false, numberOfSwitches });
-    const snapshot = await this.switchesCol.ref.get();
-    for (const doc of snapshot.docs) {
-      await doc.ref.delete();
-    }
+  protected override async getRestartSpotStates({ numberOfSwitches }: SwitchOptions) {
+    const states: { key: string, value: Partial<SwitchSpot> }[] = [];
     for (let i = 0; i < numberOfSwitches; i++) {
-      await this.switchesCol.doc(i.toString()).set({
-        claimedAt: 0,
-        activated: false
-      });
+      states.push({ key: i.toString(), value: { activated: false } });
     }
-  }
-
-  async getTimeout() {
-    if (this.timeout) return this.timeout;
-    this.timeout = 1000 * ((await this.roomRef.ref.get()).data()?.timeout || 2);
-    return this.timeout;
+    return states;
   }
 
 }

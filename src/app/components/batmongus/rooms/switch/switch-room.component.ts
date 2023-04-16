@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { DocumentReference } from "@angular/fire/compat/firestore";
-import { Observable } from "rxjs";
+import { Observable, filter, first } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
-import { BatmongusSwitchRoomService, SwitchState } from "./switch-room.service";
+import { BatmongusSwitchRoomService, SwitchSpot } from "./switch-room.service";
 import { CommonModule } from "@angular/common";
 
 @Component({
@@ -11,7 +11,7 @@ import { CommonModule } from "@angular/common";
   imports: [ CommonModule ],
   template: `
   <div class="batman-grid">
-    <div *ngIf="timeLeft" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
+    <div *ngIf="timeLeft && !(completed$ | async) && ref" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
     <div class="batman-grid-body button-room">
       <div *ngIf="!(completed$ | async) && ref"
       class="button-room-button noselect"
@@ -19,8 +19,8 @@ import { CommonModule } from "@angular/common";
       (click)="onToggle()">
         {{ +ref.id + 1 }}
       </div>
-      <div *ngIf="!(completed$ | async) && ref === null">This room is full</div>
-      <div *ngIf="completed$ | async">Done!</div>
+      <div *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</div>
+      <div *ngIf="completed$ | async">Feito!</div>
     </div>
   </div>
   `,
@@ -55,9 +55,9 @@ import { CommonModule } from "@angular/common";
   `]
 })
 export class BatmongusSwitchRoomComponent extends BatmongusRoomComponent implements OnInit {
-  protected switch$?: Observable<SwitchState | undefined>;
+  protected switch$?: Observable<SwitchSpot | undefined>;
   protected completed$: Observable<boolean>;
-  protected ref?: DocumentReference<SwitchState> | null;
+  protected ref?: DocumentReference<SwitchSpot> | null;
 
   constructor(
     private switchRoomService: BatmongusSwitchRoomService
@@ -70,6 +70,7 @@ export class BatmongusSwitchRoomComponent extends BatmongusRoomComponent impleme
     const timeout = await this.switchRoomService.getTimeout();
     this.ref = await this.switchRoomService.claim();
     this.setTimeout(timeout);
+    this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
     if (!this.ref) return;
     this.switch$ = this.switchRoomService.getSwitch(this.ref.id);
   }
