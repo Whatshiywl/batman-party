@@ -2,13 +2,13 @@ import { Injectable } from "@angular/core";
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from "@angular/fire/compat/firestore";
 import { BehaviorSubject, filter, map, mergeMap, Observable, Subject, switchMap, tap } from "rxjs";
 import { Puzzle } from "../../batmongus.service";
+import { SpotState } from "../room.service";
 
 export interface SwitchPuzzle extends Puzzle {
   numberOfSwitches: number;
 }
 
-export interface SwitchState {
-  claimedAt: number;
+export interface SwitchState extends SpotState {
   activated: boolean;
 }
 
@@ -36,7 +36,7 @@ export class BatmongusSwitchRoomService {
 
     this.switchChange.pipe(
       mergeMap(index => this.toggleSwitchesFromIndex(index)),
-      filter(hello => hello),
+      filter(activated => activated),
       switchMap(() => this.switchesCol.get()),
       map(snapshot => snapshot.docs.map(doc => doc.data())),
       map(switches => {

@@ -2,9 +2,9 @@ import { Injectable } from "@angular/core";
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from "@angular/fire/compat/firestore";
 import { BehaviorSubject, filter, map, Observable, Subject, switchMap, tap } from "rxjs";
 import { Puzzle } from "../../batmongus.service";
+import { SpotState } from "../room.service";
 
-export interface ButtonState {
-  claimedAt: number;
+export interface ButtonState extends SpotState {
   pressed: boolean;
 }
 
