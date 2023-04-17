@@ -5,6 +5,7 @@ import { BatmongusButtonRoomService, ButtonSpot } from "./rooms/button/button-ro
 import { BatmongusSwitchRoomService, SwitchSpot } from "./rooms/switch/switch-room.service";
 import { BatmongusGeniusRoomService, GeniusSpot, GeniusRoom } from "./rooms/genius/genius-room.service";
 import { BatmongusWireRoomService, WireRoom } from "./rooms/wire/wire-room.service";
+import { BatmongusMemoryRoomService, MemorySpot } from "./rooms/memory/memory-room.service";
 
 @Component({
   selector: 'batmongus-admin',
@@ -55,11 +56,30 @@ import { BatmongusWireRoomService, WireRoom } from "./rooms/wire/wire-room.servi
         <input type="checkbox" disabled [checked]="geniusRoomCompleted$ | async">
       </div>
       <div *ngIf="(geniusRoomState$ | async) as state" class="state-list">
-        <div *ngFor="let color of state.order;let i = index"
+        <div *ngFor="let color of state.order; let i = index"
         class="state-element"
         [style.background-color]="color"
         [style.opacity]="i <= state.targetPosition ? 1 : 0.3"
         [class.highlight]="state.position === i"></div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'memory'" class="memory-room-wrapper">
+      <div>
+        <label for="batmongusMemoryRoomSize">Pares: </label>
+        <input #batmongusMemoryRoomSize type="number" step="1">
+        <button (click)="resetMemoryRoom(+batmongusMemoryRoomSize.value)">
+          Reset
+        </button>
+      </div>
+      <div>
+        <label>Completo: </label>
+        <input type="checkbox" disabled [checked]="memoryRoomCompleted$ | async">
+      </div>
+      <div class="state-list">
+        <div *ngFor="let card of (memoryRoomCards$ | async)"
+        class="state-element"
+        [class.highlight]="card.flipped"
+        [style.opacity]="card.matched ? 0.3 : 1"><img [src]="card.image"></div>
       </div>
     </div>
     <div *ngSwitchCase="'switch'" class="switch-room-wrapper">
@@ -127,6 +147,9 @@ import { BatmongusWireRoomService, WireRoom } from "./rooms/wire/wire-room.servi
     justify-content: space-around;
 
     .state-element {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       width: 50px;
       height: 50px;
       border-radius: 50%;
@@ -138,6 +161,10 @@ import { BatmongusWireRoomService, WireRoom } from "./rooms/wire/wire-room.servi
 
       &.highlight {
         box-shadow: 0 0 10px 5px black;
+      }
+
+      > img {
+        width: 100%;
       }
     }
   }
@@ -155,6 +182,9 @@ export class BatmongusAdminComponent {
   protected readonly geniusRoomButtons$: Observable<GeniusSpot[]>;
   protected readonly geniusRoomState$: Observable<GeniusRoom | undefined>;
 
+  protected readonly memoryRoomCompleted$: Observable<boolean>;
+  protected readonly memoryRoomCards$: Observable<MemorySpot[]>;
+
   protected readonly switchRoomCompleted$: Observable<boolean>;
   protected readonly switchRoomSwitches$: Observable<SwitchSpot[]>;
 
@@ -165,6 +195,7 @@ export class BatmongusAdminComponent {
     private batmongusService: BatmongusService,
     private batmongusButtonRoomService: BatmongusButtonRoomService,
     private batmongusGeniusRoomService: BatmongusGeniusRoomService,
+    private batmongusMemoryRoomService: BatmongusMemoryRoomService,
     private batmongusSwitchRoomService: BatmongusSwitchRoomService,
     private batmongusWireRoomService: BatmongusWireRoomService,
   ) {
@@ -177,6 +208,9 @@ export class BatmongusAdminComponent {
     this.geniusRoomCompleted$ = this.batmongusGeniusRoomService.completed$;
     this.geniusRoomButtons$ = this.batmongusGeniusRoomService.roomSpots$;
     this.geniusRoomState$ = this.batmongusGeniusRoomService.roomState$;
+
+    this.memoryRoomCompleted$ = this.batmongusMemoryRoomService.completed$;
+    this.memoryRoomCards$ = this.batmongusMemoryRoomService.roomSpots$;
 
     this.switchRoomCompleted$ = this.batmongusSwitchRoomService.completed$;
     this.switchRoomSwitches$ = this.batmongusSwitchRoomService.roomSpots$;
@@ -191,6 +225,10 @@ export class BatmongusAdminComponent {
 
   resetGeniusRoom(numberOfButtons: number, orderLength: number) {
     return this.batmongusGeniusRoomService.reset({ numberOfButtons, orderLength });
+  }
+
+  resetMemoryRoom(numberOfPairs: number) {
+    return this.batmongusMemoryRoomService.reset({ numberOfPairs });
   }
 
   resetSwitchRoom(numberOfSwitches: number) {

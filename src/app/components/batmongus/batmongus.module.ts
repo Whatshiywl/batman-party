@@ -17,6 +17,8 @@ import { BatmongusGeniusRoomComponent } from "./rooms/genius/genius-room.compone
 import { BatmongusGeniusRoomService } from "./rooms/genius/genius-room.service";
 import { BatmongusWireRoomComponent } from "./rooms/wire/wire-room.component";
 import { BatmongusWireRoomService } from "./rooms/wire/wire-room.service";
+import { BatmongusMemoryRoomComponent } from "./rooms/memory/memory-room.component";
+import { BatmongusMemoryRoomService } from "./rooms/memory/memory-room.service";
 
 const routes: Routes = [
   {
@@ -39,6 +41,15 @@ const routes: Routes = [
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusGeniusRoomService
+        ]
+      },
+      {
+        path: 'rooms/memory',
+        component: BatmongusMemoryRoomComponent,
+        canActivate: [ SecretGuard ],
+        data: { rejectTo: '/batmongus' },
+        providers: [
+          BatmongusMemoryRoomService
         ]
       },
       {
@@ -80,6 +91,7 @@ const routes: Routes = [
     BatmongusService,
     BatmongusButtonRoomService,
     BatmongusGeniusRoomService,
+    BatmongusMemoryRoomService,
     BatmongusSwitchRoomService,
     BatmongusWireRoomService,
   ],
