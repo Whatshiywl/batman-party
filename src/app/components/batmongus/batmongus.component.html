@@ -3,7 +3,7 @@
     *ngIf="!scanResult || puzzle"
     class="batman-flex-body"
     (result)="onScanResult($event)"
-    [debug]="true"
+    [debug]="!isProduction"
     >
   </batman-scan>
   <router-outlet

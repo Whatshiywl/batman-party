@@ -4,6 +4,7 @@ import { debounceTime, map, skipUntil, Subject, takeUntil, timer } from "rxjs";
 import { BatmongusService } from "./batmongus.service";
 import { BatmongusRoomComponent } from "./rooms/room.component";
 import { Room } from "./rooms/room.service";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: 'batman-batmongus',
@@ -16,6 +17,7 @@ export class BatmongusComponent implements OnInit, OnDestroy {
     path: string,
     queryParams: Params | undefined
   } | undefined;
+  protected isProduction = environment.production;
 
   private scan$: Subject<string> = new Subject();
   private timeout$: Subject<void> = new Subject();
