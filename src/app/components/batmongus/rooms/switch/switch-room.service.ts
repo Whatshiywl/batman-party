@@ -24,7 +24,7 @@ export class BatmongusSwitchRoomService extends BatmongusRoomService<SwitchRoom,
     afs: AngularFirestore
   ) {
     super('switch', afs);
-    this.roomRef.valueChanges().subscribe(room => this.numberOfSwitches = room?.numberOfSwitches || 0);
+    this.room$.subscribe(room => this.numberOfSwitches = room?.numberOfSwitches || 0);
 
     this.switchChange.pipe(
       mergeMap(index => this.toggleSwitchesFromIndex(index)),
@@ -57,10 +57,6 @@ export class BatmongusSwitchRoomService extends BatmongusRoomService<SwitchRoom,
       updates.forEach(({ doc, activated }) => transaction.update(doc.ref, { activated }));
       return updates[1].activated;
     });
-  }
-
-  getSwitch(index: string) {
-    return this.spotsCol.doc(index).valueChanges();
   }
 
   protected override async getRestartPuzzleState({ numberOfSwitches }: SwitchOptions) {

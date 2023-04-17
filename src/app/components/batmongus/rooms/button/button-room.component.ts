@@ -82,7 +82,7 @@ export class BatmongusButtonRoomComponent extends BatmongusRoomComponent impleme
     this.setTimeout(this.ref === null ? 5000 : timeout);
     this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
     if (!this.ref) return;
-    this.button$ = this.buttonRoomService.getButton$(this.ref.id);
+    this.button$ = this.buttonRoomService.get$(this.ref.id);
 
     timer(0, this.dt).pipe(
       tap(_ => {

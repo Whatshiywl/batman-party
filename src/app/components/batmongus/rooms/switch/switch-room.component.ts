@@ -72,7 +72,7 @@ export class BatmongusSwitchRoomComponent extends BatmongusRoomComponent impleme
     this.setTimeout(timeout);
     this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
     if (!this.ref) return;
-    this.switch$ = this.switchRoomService.getSwitch(this.ref.id);
+    this.switch$ = this.switchRoomService.get$(this.ref.id);
   }
 
   protected onToggle() {

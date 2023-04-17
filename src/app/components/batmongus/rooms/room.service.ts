@@ -64,6 +64,10 @@ export abstract class BatmongusRoomService<
     return this.spots$;
   }
 
+  get$(key: string) {
+    return this.spotsCol.doc(key).valueChanges();
+  }
+
   protected setCompleted(completed: boolean) {
     return this.roomRef.update({ completed } as Partial<R>);
   }
@@ -76,19 +80,20 @@ export abstract class BatmongusRoomService<
 
   async reset(options: O) {
     const puzzleState = (await this.getRestartPuzzleState(options)) || {} as Partial<R>;
-    await this.roomRef.update({ completed: false, ...puzzleState });
+    const room = { completed: false, ...puzzleState } as R;
+    await this.roomRef.update(room);
     const snapshot = await this.spotsCol.ref.get();
     for (const doc of snapshot.docs) {
       await doc.ref.delete();
     }
-    const spotStates = (await this.getRestartSpotStates(options)) || [] as { key: string, value: Partial<S> }[];
+    const spotStates = (await this.getRestartSpotStates(options, room)) || [] as { key: string, value: Partial<S> }[];
     for (const { key, value } of spotStates) {
       await this.spotsCol.doc(key).set({ claimedAt: 0, ...value } as S);
     }
   }
 
-  protected async getRestartPuzzleState(_: O): Promise<Partial<R>> { return { } };
+  protected async getRestartPuzzleState(o: O): Promise<Partial<R>> { return { } };
 
-  protected async getRestartSpotStates(_: O): Promise<{ key: string, value: Partial<S> }[]> { return [ ] };
+  protected async getRestartSpotStates(o: O, r?: R): Promise<{ key: string, value: Partial<S> }[]> { return [ ] };
 
 }

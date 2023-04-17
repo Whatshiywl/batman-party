@@ -4,6 +4,7 @@ import { BatmongusService, Player } from "./batmongus.service";
 import { BatmongusButtonRoomService, ButtonSpot } from "./rooms/button/button-room.service";
 import { BatmongusSwitchRoomService, SwitchSpot } from "./rooms/switch/switch-room.service";
 import { BatmongusGeniusRoomService, GeniusSpot, GeniusRoom } from "./rooms/genius/genius-room.service";
+import { BatmongusWireRoomService, WireRoom } from "./rooms/wire/wire-room.service";
 
 @Component({
   selector: 'batmongus-admin',
@@ -39,7 +40,7 @@ import { BatmongusGeniusRoomService, GeniusSpot, GeniusRoom } from "./rooms/geni
         [class.on]="button.pressed"></div>
       </div>
     </div>
-    <div *ngSwitchCase="'genius'" class="switch-room-wrapper">
+    <div *ngSwitchCase="'genius'" class="genius-room-wrapper">
       <div>
         <label for="batmongusGeniusRoomSize">Botões: </label>
         <input #batmongusGeniusRoomSize type="number" step="1">
@@ -77,6 +78,24 @@ import { BatmongusGeniusRoomService, GeniusSpot, GeniusRoom } from "./rooms/geni
         <div *ngFor="let switch of (switchRoomSwitches$ | async)"
         class="state-element"
         [class.on]="switch.activated"></div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'wire'" class="wire-room-wrapper">
+      <div>
+        <label for="batmongusWireRoomSize">Fios: </label>
+        <input #batmongusWireRoomSize type="number" step="1">
+        <button (click)="resetWireRoom(+batmongusWireRoomSize.value)">
+          Reset
+        </button>
+      </div>
+      <div>
+        <label>Completo: </label>
+        <input type="checkbox" disabled [checked]="wireRoomCompleted$ | async">
+      </div>
+      <div class="state-list">
+        <div *ngIf="(wireRoomState$ | async) as state"
+        class="state-element"
+        [style.backgroundColor]="state.target"></div>
       </div>
     </div>
   </div>
@@ -139,11 +158,15 @@ export class BatmongusAdminComponent {
   protected readonly switchRoomCompleted$: Observable<boolean>;
   protected readonly switchRoomSwitches$: Observable<SwitchSpot[]>;
 
+  protected readonly wireRoomCompleted$: Observable<boolean>;
+  protected readonly wireRoomState$: Observable<WireRoom | undefined>;
+
   constructor(
     private batmongusService: BatmongusService,
     private batmongusButtonRoomService: BatmongusButtonRoomService,
     private batmongusGeniusRoomService: BatmongusGeniusRoomService,
     private batmongusSwitchRoomService: BatmongusSwitchRoomService,
+    private batmongusWireRoomService: BatmongusWireRoomService,
   ) {
     this.players$ = this.batmongusService.players$;
     this.rooms = this.batmongusService.getRooms();
@@ -157,6 +180,9 @@ export class BatmongusAdminComponent {
 
     this.switchRoomCompleted$ = this.batmongusSwitchRoomService.completed$;
     this.switchRoomSwitches$ = this.batmongusSwitchRoomService.roomSpots$;
+
+    this.wireRoomCompleted$ = this.batmongusWireRoomService.completed$;
+    this.wireRoomState$ = this.batmongusWireRoomService.roomState$;
   }
 
   resetButtonRoom(numberOfButtons: number) {
@@ -169,6 +195,10 @@ export class BatmongusAdminComponent {
 
   resetSwitchRoom(numberOfSwitches: number) {
     return this.batmongusSwitchRoomService.reset({ numberOfSwitches });
+  }
+
+  resetWireRoom(numberOfWires: number) {
+    return this.batmongusWireRoomService.reset({ numberOfWires });
   }
 
 }

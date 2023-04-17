@@ -48,10 +48,6 @@ export class BatmongusButtonRoomService extends BatmongusRoomService<Room, Butto
     return this.spotsCol.doc(index).update({ pressed });
   }
 
-  getButton$(index: string) {
-    return this.spotsCol.doc(index).valueChanges();
-  }
-
   protected override async getRestartSpotStates({ numberOfButtons }: ButtonOptions) {
     const states: { key: string, value: Partial<ButtonSpot> }[] = [];
     for (let i = 0; i < numberOfButtons; i++) {
