@@ -1,8 +1,9 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { Observable, filter, first } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
 import { BatmongusWireRoomService, WireOptions, WireRoom, WireSpot } from "./wire-room.service";
 import { CommonModule } from "@angular/common";
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
 @Component({
   selector: 'batman-batmongus-button-room',
@@ -12,10 +13,13 @@ import { CommonModule } from "@angular/common";
   <div class="batman-grid">
     <div *ngIf="timeLeft && ref && !(completed$ | async) && !(triggered$ | async)" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
     <div class="batman-grid-body wire-room">
-      <div *ngIf="ref && !(triggered$ | async) && !(completed$ | async)"
+      <svg *ngIf="ref && !(completed$ | async) && !(triggered$ | async)"
       class="wire-room-wire noselect"
-      [style.background]="ref.id"
-      (click)="onCut()"></div>
+      viewBox="0 0 100 100"
+      height="100"
+      preserveAspectRatio="none"
+      [innerHTML]="svg"
+      (click)="onCut()"/>
       <p *ngIf="!(completed$ | async) && !(triggered$ | async) && (spot$ | async) as wire" class="wire-clue-phrase">
         Não corte o fio
         <span [style.color]="wire.clueColor">
@@ -57,8 +61,7 @@ import { CommonModule } from "@angular/common";
   height: 30vh;
 
   > .wire-room-wire {
-    width: 100vw;
-    height: 5px;
+    width: 100%;
   }
 
   > p {
@@ -85,9 +88,11 @@ export class BatmongusWireRoomComponent extends BatmongusRoomComponent<
   WireOptions
 > implements OnInit {
   protected triggered$: Observable<boolean>;
+  protected svg: SafeHtml = "";
 
   constructor(
-    private wireRoomService: BatmongusWireRoomService
+    private wireRoomService: BatmongusWireRoomService,
+    private sanitizer: DomSanitizer
   ) {
     super(wireRoomService);
     this.completed$ = this.wireRoomService.completed$;
@@ -96,6 +101,26 @@ export class BatmongusWireRoomComponent extends BatmongusRoomComponent<
 
   protected override async onAfterInit(): Promise<void> {
     this.triggered$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
+    this.svg = this.sanitizer.bypassSecurityTrustHtml(`
+      <path d="${this.generateWirePath()}" stroke="${this.ref?.id}" stroke-width="5" fill="transparent" />
+    `);
+  }
+
+  private generateWirePath() {
+    const pm = (value: number, amount: number = 1) => {
+      return Math.round(value + (Math.random() * amount * 2) - amount);
+    }
+    let svgPath = `
+    M -10 50
+    Q 5 45 10 50
+    `;
+    for (let i = 20; i < 100; i += 10) {
+      const x = pm(i, 1);
+      const y = pm(50, 5);
+      svgPath += `T ${x} ${y}\n`;
+    }
+    svgPath += `T 110 50`;
+    return svgPath;
   }
 
   protected onCut() {
