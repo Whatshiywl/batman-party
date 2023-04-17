@@ -1,8 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { DocumentReference } from "@angular/fire/compat/firestore";
-import { Observable, filter, first } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
-import { BatmongusSwitchRoomService, SwitchSpot } from "./switch-room.service";
+import { BatmongusSwitchRoomService, SwitchOptions, SwitchRoom, SwitchSpot } from "./switch-room.service";
 import { CommonModule } from "@angular/common";
 
 @Component({
@@ -13,9 +11,9 @@ import { CommonModule } from "@angular/common";
   <div class="batman-grid">
     <div *ngIf="timeLeft && !(completed$ | async) && ref" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
     <div class="batman-grid-body button-room">
-      <div *ngIf="!(completed$ | async) && ref"
+      <div *ngIf="ref && !(completed$ | async) && (spot$ | async) as switch"
       class="button-room-button noselect"
-      [class.switch-room-switch-pressed]="(switch$ | async)?.activated"
+      [class.switch-room-switch-pressed]="switch.activated"
       (click)="onToggle()">
         {{ +ref.id + 1 }}
       </div>
@@ -54,25 +52,16 @@ import { CommonModule } from "@angular/common";
 }
   `]
 })
-export class BatmongusSwitchRoomComponent extends BatmongusRoomComponent implements OnInit {
-  protected switch$?: Observable<SwitchSpot | undefined>;
-  protected completed$: Observable<boolean>;
-  protected ref?: DocumentReference<SwitchSpot> | null;
+export class BatmongusSwitchRoomComponent extends BatmongusRoomComponent<
+  SwitchRoom,
+  SwitchSpot,
+  SwitchOptions
+> implements OnInit {
 
   constructor(
     private switchRoomService: BatmongusSwitchRoomService
   ) {
-    super();
-    this.completed$ = this.switchRoomService.completed$;
-  }
-
-  async ngOnInit() {
-    const timeout = await this.switchRoomService.getTimeout();
-    this.ref = await this.switchRoomService.claim();
-    this.setTimeout(timeout);
-    this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
-    if (!this.ref) return;
-    this.switch$ = this.switchRoomService.get$(this.ref.id);
+    super(switchRoomService);
   }
 
   protected onToggle() {

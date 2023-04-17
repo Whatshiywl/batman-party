@@ -1,8 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { DocumentReference } from "@angular/fire/compat/firestore";
 import { Observable, filter, first } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
-import { BatmongusWireRoomService, WireSpot } from "./wire-room.service";
+import { BatmongusWireRoomService, WireOptions, WireRoom, WireSpot } from "./wire-room.service";
 import { CommonModule } from "@angular/common";
 
 @Component({
@@ -17,7 +16,7 @@ import { CommonModule } from "@angular/common";
       class="wire-room-wire noselect"
       [style.background]="ref.id"
       (click)="onCut()"></div>
-      <p *ngIf="!(completed$ | async) && !(triggered$ | async) && (wire$ | async) as wire" class="wire-clue-phrase">
+      <p *ngIf="!(completed$ | async) && !(triggered$ | async) && (spot$ | async) as wire" class="wire-clue-phrase">
         Não corte o fio
         <span [style.color]="wire.clueColor">
           {{ wire.clueText }}
@@ -80,28 +79,23 @@ import { CommonModule } from "@angular/common";
 }
   `]
 })
-export class BatmongusWireRoomComponent extends BatmongusRoomComponent implements OnInit {
-  protected wire$?: Observable<WireSpot | undefined>;
-  protected completed$: Observable<boolean>;
+export class BatmongusWireRoomComponent extends BatmongusRoomComponent<
+  WireRoom,
+  WireSpot,
+  WireOptions
+> implements OnInit {
   protected triggered$: Observable<boolean>;
-  protected ref?: DocumentReference<WireSpot> | null;
 
   constructor(
     private wireRoomService: BatmongusWireRoomService
   ) {
-    super();
+    super(wireRoomService);
     this.completed$ = this.wireRoomService.completed$;
     this.triggered$ = this.wireRoomService.triggered$;
   }
 
-  async ngOnInit() {
-    const timeout = await this.wireRoomService.getTimeout();
-    this.ref = await this.wireRoomService.claim();
-    this.setTimeout(timeout);
-    this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
+  protected override async onAfterInit(): Promise<void> {
     this.triggered$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
-    if (!this.ref) return;
-    this.wire$ = this.wireRoomService.get$(this.ref.id);
   }
 
   protected onCut() {

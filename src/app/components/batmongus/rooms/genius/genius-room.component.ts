@@ -1,10 +1,8 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { DocumentReference } from "@angular/fire/compat/firestore";
-import { Observable, Subject, filter, first, map, of, switchMap, takeUntil, tap, timer } from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { Observable, Subject, filter, map, of, switchMap, takeUntil, tap, timer } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
-import { BatmongusGeniusRoomService } from "./genius-room.service";
+import { BatmongusGeniusRoomService, GeniusOptions, GeniusRoom, GeniusSpot } from "./genius-room.service";
 import { CommonModule } from "@angular/common";
-import { RoomSpot } from "../room.service";
 
 @Component({
   selector: 'batman-batmongus-button-room',
@@ -56,9 +54,11 @@ import { RoomSpot } from "../room.service";
 }
   `]
 })
-export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent implements OnInit {
-  protected completed$: Observable<boolean>;
-  protected ref?: DocumentReference<RoomSpot> | null;
+export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent<
+  GeniusRoom,
+  GeniusSpot,
+  GeniusOptions
+> implements OnInit {
   protected highlighted: boolean = false;
   private highlightCooldown: boolean = false;
   private buttonPress$: Subject<void> = new Subject();
@@ -66,15 +66,10 @@ export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent impleme
   constructor(
     private geniusRoomService: BatmongusGeniusRoomService
   ) {
-    super();
-    this.completed$ = this.geniusRoomService.completed$;
+    super(geniusRoomService);
   }
 
-  async ngOnInit() {
-    const timeout = await this.geniusRoomService.getTimeout();
-    this.ref = await this.geniusRoomService.claim();
-    this.setTimeout(this.ref === null ? 5000 : timeout);
-    this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
+  override async onAfterInit() {
     if (!this.ref) return;
     const myColor = this.ref.id;
     this.geniusRoomService.showColor$.pipe(
@@ -89,7 +84,7 @@ export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent impleme
       filter(() => !this.highlightCooldown),
       tap(() => this.geniusRoomService.pressButton(myColor)),
       switchMap(() => this.highlight()),
-      ).subscribe();
+    ).subscribe();
   }
 
   protected onPress() {

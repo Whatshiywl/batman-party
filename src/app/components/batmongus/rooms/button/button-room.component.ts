@@ -1,9 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { DocumentReference } from "@angular/fire/compat/firestore";
-import { filter, first, map, merge, Observable, repeat, Subject, takeUntil, tap, timer, withLatestFrom } from "rxjs";
+import { filter, map, merge, repeat, Subject, takeUntil, tap, timer, withLatestFrom } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
-import { BatmongusButtonRoomService, ButtonSpot } from "./button-room.service";
+import { BatmongusButtonRoomService, ButtonOptions, ButtonSpot } from "./button-room.service";
 import { CommonModule } from "@angular/common";
+import { Room } from "../room.service";
 
 @Component({
   selector: 'batman-batmongus-button-room',
@@ -13,9 +13,9 @@ import { CommonModule } from "@angular/common";
   <div class="batman-grid">
     <div *ngIf="timeLeft && !(completed$ | async) && ref" class="batman-grid-header counter .noselect">{{ timeLeft }}</div>
     <div class="batman-grid-body button-room">
-      <div *ngIf="!(completed$ | async) && ref"
+      <div *ngIf="ref && !(completed$ | async) && (spot$ | async) as button"
       class="button-room-button noselect"
-      [class.button-room-button-pressed]="(button$ | async)?.pressed"
+      [class.button-room-button-pressed]="button.pressed"
       [style.background]="getBackground()"
       (mousedown)="press()"
       (touchstart)="press()"
@@ -58,10 +58,11 @@ import { CommonModule } from "@angular/common";
 }
   `]
 })
-export class BatmongusButtonRoomComponent extends BatmongusRoomComponent implements OnInit {
-  protected button$?: Observable<ButtonSpot | undefined>;
-  protected completed$: Observable<boolean>;
-  protected ref?: DocumentReference<ButtonSpot> | null;
+export class BatmongusButtonRoomComponent extends BatmongusRoomComponent<
+  Room,
+  ButtonSpot,
+  ButtonOptions
+> implements OnInit {
   protected pressing: boolean = false;
   protected progress: number = 0;
   private readonly dt = 100;
@@ -72,17 +73,11 @@ export class BatmongusButtonRoomComponent extends BatmongusRoomComponent impleme
   constructor(
     private buttonRoomService: BatmongusButtonRoomService
   ) {
-    super();
-    this.completed$ = this.buttonRoomService.completed$;
+    super(buttonRoomService);
   }
 
-  async ngOnInit() {
-    const timeout = await this.buttonRoomService.getTimeout();
-    this.ref = await this.buttonRoomService.claim();
-    this.setTimeout(this.ref === null ? 5000 : timeout);
-    this.completed$.pipe(filter(Boolean), first()).subscribe(() => this.setTimeout(3000));
-    if (!this.ref) return;
-    this.button$ = this.buttonRoomService.get$(this.ref.id);
+  override async onAfterInit() {
+    if (!this.ref || !this.spot$) return;
 
     timer(0, this.dt).pipe(
       tap(_ => {
@@ -93,7 +88,7 @@ export class BatmongusButtonRoomComponent extends BatmongusRoomComponent impleme
       takeUntil(merge(this.start$, this.stop$)),
       repeat(),
       tap(progress => this.progress = progress),
-      withLatestFrom(this.button$),
+      withLatestFrom(this.spot$),
       takeUntil(this.destroy$)
     ).subscribe(([ progress, button ]) => {
       if (!button || !this.ref) return;
