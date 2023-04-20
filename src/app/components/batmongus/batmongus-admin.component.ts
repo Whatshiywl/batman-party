@@ -6,6 +6,8 @@ import { BatmongusSwitchRoomService, SwitchSpot } from "./rooms/switch/switch-ro
 import { BatmongusGeniusRoomService, GeniusSpot, GeniusRoom } from "./rooms/genius/genius-room.service";
 import { BatmongusWireRoomService, WireRoom } from "./rooms/wire/wire-room.service";
 import { BatmongusMemoryRoomService, MemorySpot } from "./rooms/memory/memory-room.service";
+import { BatmongusFuelIntakeRoomService, FuelState } from "./rooms/fuel-intake/fuel-intake-room.service";
+import { BatmongusFuelDumpRoomService } from "./rooms/fuel-dump/fuel-dump-room.service";
 
 @Component({
   selector: 'batmongus-admin',
@@ -39,6 +41,37 @@ import { BatmongusMemoryRoomService, MemorySpot } from "./rooms/memory/memory-ro
         <div *ngFor="let button of (buttonRoomButtons$ | async)"
         class="state-element"
         [class.on]="button.pressed"></div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'fuel-dump'" class="fuel-dump-room-wrapper">
+      <div>
+        <label for="batmongusFuelDumpRoomSize">Lugares: </label>
+        <input #batmongusFuelDumpRoomSize type="number" step="1">
+        <label for="batmongusFuelDumpRoomMax">Objetivo: </label>
+        <input #batmongusFuelDumpRoomMax type="number" step="1">
+        <button (click)="resetFuelDumpRoom(+batmongusFuelDumpRoomSize.value, +batmongusFuelDumpRoomMax.value)">
+          Reset
+        </button>
+      </div>
+      <div>
+        <label>Completo: </label>
+        <input type="checkbox" disabled [checked]="fuelDumpRoomCompleted$ | async">
+        <span *ngIf="(fuelState$ | async) as state">{{ state.fuel }} / {{ state.max }}</span>
+      </div>
+    </div>
+    <div *ngSwitchCase="'fuel-intake'" class="fuel-intake-room-wrapper">
+      <div>
+        <label for="batmongusFuelIntakeRoomSize">Lugares: </label>
+        <input #batmongusFuelIntakeRoomSize type="number" step="1">
+        <label for="batmongusFuelIntakeRoomMax">Capacidade máxima: </label>
+        <input #batmongusFuelIntakeRoomMax type="number" step="1">
+        <button (click)="resetFuelIntakeRoom(+batmongusFuelIntakeRoomSize.value, +batmongusFuelIntakeRoomMax.value)">
+          Reset
+        </button>
+      </div>
+      <div>
+        <label>Completo: </label>
+        <input type="checkbox" disabled [checked]="fuelIntakeRoomCompleted$ | async">
       </div>
     </div>
     <div *ngSwitchCase="'genius'" class="genius-room-wrapper">
@@ -178,6 +211,10 @@ export class BatmongusAdminComponent {
   protected readonly buttonRoomCompleted$: Observable<boolean>;
   protected readonly buttonRoomButtons$: Observable<ButtonSpot[]>;
 
+  protected readonly fuelDumpRoomCompleted$: Observable<boolean>;
+  protected readonly fuelIntakeRoomCompleted$: Observable<boolean>;
+  protected readonly fuelState$: Observable<FuelState>;
+
   protected readonly geniusRoomCompleted$: Observable<boolean>;
   protected readonly geniusRoomButtons$: Observable<GeniusSpot[]>;
   protected readonly geniusRoomState$: Observable<GeniusRoom | undefined>;
@@ -194,6 +231,8 @@ export class BatmongusAdminComponent {
   constructor(
     private batmongusService: BatmongusService,
     private batmongusButtonRoomService: BatmongusButtonRoomService,
+    private batmongusFuelDumpRoomService: BatmongusFuelDumpRoomService,
+    private batmongusFuelIntakeRoomService: BatmongusFuelIntakeRoomService,
     private batmongusGeniusRoomService: BatmongusGeniusRoomService,
     private batmongusMemoryRoomService: BatmongusMemoryRoomService,
     private batmongusSwitchRoomService: BatmongusSwitchRoomService,
@@ -204,6 +243,10 @@ export class BatmongusAdminComponent {
 
     this.buttonRoomCompleted$ = this.batmongusButtonRoomService.completed$;
     this.buttonRoomButtons$ = this.batmongusButtonRoomService.roomSpots$;
+
+    this.fuelDumpRoomCompleted$ = this.batmongusFuelDumpRoomService.completed$;
+    this.fuelIntakeRoomCompleted$ = this.batmongusFuelIntakeRoomService.completed$;
+    this.fuelState$ = this.batmongusFuelDumpRoomService.fuelState$;
 
     this.geniusRoomCompleted$ = this.batmongusGeniusRoomService.completed$;
     this.geniusRoomButtons$ = this.batmongusGeniusRoomService.roomSpots$;
@@ -221,6 +264,14 @@ export class BatmongusAdminComponent {
 
   resetButtonRoom(numberOfButtons: number) {
     return this.batmongusButtonRoomService.reset({ numberOfButtons });
+  }
+
+  resetFuelDumpRoom(numberOfSpots: number, target: number) {
+    return this.batmongusFuelDumpRoomService.reset({ numberOfSpots, target });
+  }
+
+  resetFuelIntakeRoom(numberOfSpots: number, maxFuel: number) {
+    return this.batmongusFuelIntakeRoomService.reset({ numberOfSpots, maxFuel });
   }
 
   resetGeniusRoom(numberOfButtons: number, orderLength: number) {

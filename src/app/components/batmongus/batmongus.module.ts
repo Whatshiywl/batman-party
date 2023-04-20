@@ -19,6 +19,10 @@ import { BatmongusWireRoomComponent } from "./rooms/wire/wire-room.component";
 import { BatmongusWireRoomService } from "./rooms/wire/wire-room.service";
 import { BatmongusMemoryRoomComponent } from "./rooms/memory/memory-room.component";
 import { BatmongusMemoryRoomService } from "./rooms/memory/memory-room.service";
+import { BatmongusFuelIntakeRoomComponent } from "./rooms/fuel-intake/fuel-intake-room.component";
+import { BatmongusFuelIntakeRoomService } from "./rooms/fuel-intake/fuel-intake-room.service";
+import { BatmongusFuelDumpRoomComponent } from "./rooms/fuel-dump/fuel-dump-room.component";
+import { BatmongusFuelDumpRoomService } from "./rooms/fuel-dump/fuel-dump-room.service";
 
 const routes: Routes = [
   {
@@ -32,6 +36,25 @@ const routes: Routes = [
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusButtonRoomService
+        ]
+      },
+      {
+        path: 'rooms/fuel-dump',
+        component: BatmongusFuelDumpRoomComponent,
+        canActivate: [ SecretGuard ],
+        data: { rejectTo: '/batmongus' },
+        providers: [
+          BatmongusFuelDumpRoomService,
+          BatmongusFuelIntakeRoomService
+        ]
+      },
+      {
+        path: 'rooms/fuel-intake',
+        component: BatmongusFuelIntakeRoomComponent,
+        canActivate: [ SecretGuard ],
+        data: { rejectTo: '/batmongus' },
+        providers: [
+          BatmongusFuelIntakeRoomService
         ]
       },
       {
@@ -90,6 +113,8 @@ const routes: Routes = [
   providers: [
     BatmongusService,
     BatmongusButtonRoomService,
+    BatmongusFuelDumpRoomService,
+    BatmongusFuelIntakeRoomService,
     BatmongusGeniusRoomService,
     BatmongusMemoryRoomService,
     BatmongusSwitchRoomService,

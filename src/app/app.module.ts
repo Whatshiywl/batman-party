@@ -10,6 +10,7 @@ import { NotificationComponent } from './components/notification/notification.co
 import { NotificationService } from './components/notification/notification.service';
 import { LocalStorageService } from './shared/local-storage.service';
 import { ConfigService } from './shared/config.service';
+import { SessionStorageService } from './shared/session-storage.service';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { ConfigService } from './shared/config.service';
   providers: [
     ConfigService,
     LocalStorageService,
+    SessionStorageService,
     NotificationService
   ],
   bootstrap: [AppComponent]

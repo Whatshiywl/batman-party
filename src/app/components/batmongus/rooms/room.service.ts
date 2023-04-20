@@ -68,7 +68,7 @@ export abstract class BatmongusRoomService<
     return this.spotsCol.doc(key).valueChanges();
   }
 
-  protected setCompleted(completed: boolean) {
+  public setCompleted(completed: boolean) {
     return this.roomRef.update({ completed } as Partial<R>);
   }
 
