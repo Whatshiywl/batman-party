@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { Params, Router } from "@angular/router";
+import { Params, Router  } from "@angular/router";
 import { debounceTime, map, skipUntil, Subject, takeUntil, timer } from "rxjs";
 import { BatmongusService } from "./batmongus.service";
 import { BatmongusRoomComponent } from "./rooms/room.component";
@@ -21,6 +21,9 @@ export class BatmongusComponent implements OnInit, OnDestroy {
 
   private scan$: Subject<string> = new Subject();
   private timeout$: Subject<void> = new Subject();
+
+  protected showModal: boolean = false;
+  protected surrender: boolean = false;
 
   constructor(
     private batmongusService: BatmongusService,
@@ -101,4 +104,23 @@ export class BatmongusComponent implements OnInit, OnDestroy {
     this.timeout$.complete();
   }
 
+  openModal() {
+    this.showModal = !this.showModal;
+    this.surrender = false;
+  }
+
+  openSurrenderModal() {
+    this.showModal = false;
+    this.surrender = true;
+  }
+
+  chooseSurrender() {
+    // TODO: Implement surrender
+    const path = '';
+    return this.router.navigate([ path ]);
+  }
+
+  chooseNotSurrender() {
+    this.surrender = false;
+  }
 }

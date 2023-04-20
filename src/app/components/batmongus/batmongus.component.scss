@@ -1,0 +1,39 @@
+.font-standard {
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+.bar {
+  bottom: 0px;
+  position: absolute;
+  width: 100%;
+  background-color: rgb(153, 151, 151)
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+}
+
+.flex-row {
+  display: flex; flex-direction: row;
+}
+
+.button-icon {
+  background: inherit;
+  border: none;
+  color: white
+}
+
+.button-text {
+  border: gray;
+  border-radius: 10px;
+  font-size: x-small;
+}
+
+.margin-small {
+  margin: 5%
+}
+
+.warning-bar {
+  background-color: red; color: black; padding: 2%; display: flex; align-items: center;flex-direction: column;
+}

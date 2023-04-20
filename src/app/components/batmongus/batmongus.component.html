@@ -10,6 +10,27 @@
     (activate)="onOutletActivate($event)"
     (deactivate)="onOutletDeactivate()">
   </router-outlet>
+
+  <div class="batman-grid-footer font-standard bar">
+    <div class="flex-center">
+      <button class="button-icon" (click)="openModal()">⬍</button>
+    </div>
+    <div class="flex-center" *ngIf="showModal">
+        Você é um <b>impostor</b>.
+      <button class="button-text" (click)="openSurrenderModal()" alt="surrender">Me entregar</button>
+    </div>
+
+    <div class="warning-bar" *ngIf="surrender">
+      <div style="color: white;">
+        Tem certeza que deseja se entregar? <br />
+        Você não poderá voltar para o jogo.
+      </div>
+      <div class="flex-row">
+        <button class="button-text margin-small" (click)="chooseSurrender()">Desistir</button>
+        <button class="button-text margin-small" (click)="chooseNotSurrender()">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </div>
 <batman-modal
   *ngIf="puzzle"
