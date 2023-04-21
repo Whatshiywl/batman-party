@@ -1,33 +1,36 @@
-<div class="batman-flex">
+<div class="batman-grid">
   <batman-scan
     *ngIf="!scanResult || puzzle"
-    class="batman-flex-body"
+    class="batman-grid-body"
     (result)="onScanResult($event)"
     [debug]="!isProduction"
     >
   </batman-scan>
+
   <router-outlet
     (activate)="onOutletActivate($event)"
     (deactivate)="onOutletDeactivate()">
   </router-outlet>
 
-  <div class="batman-grid-footer font-standard bar">
-    <div class="flex-center">
-      <button class="button-icon" (click)="openModal()">⬍</button>
-    </div>
-    <div class="flex-center" *ngIf="showModal">
-        Você é um <b>impostor</b>.
-      <button class="button-text" (click)="openSurrenderModal()" alt="surrender">Me entregar</button>
+  <div *ngIf="!scanResult || puzzle"
+    class="batman-grid-footer action-bar">
+    <div class="pull-bar" (click)="toggleActionBar()">
+      ≡
     </div>
 
-    <div class="warning-bar" *ngIf="surrender">
-      <div style="color: white;">
+    <div *ngIf="showModal" class="action-area">
+      <span>Você é um <strong>impostor</strong>!</span>
+      <button (click)="toggleSurrenderModal()">Me entregar</button>
+    </div>
+
+    <div *ngIf="confirmSurrender" class="warning-bar">
+      <div>
         Tem certeza que deseja se entregar? <br />
         Você não poderá voltar para o jogo.
       </div>
-      <div class="flex-row">
-        <button class="button-text margin-small" (click)="chooseSurrender()">Desistir</button>
-        <button class="button-text margin-small" (click)="chooseNotSurrender()">Cancelar</button>
+      <div class="confirm-options">
+        <button (click)="chooseSurrender()">Desistir</button>
+        <button (click)="chooseNotSurrender()">Cancelar</button>
       </div>
     </div>
   </div>

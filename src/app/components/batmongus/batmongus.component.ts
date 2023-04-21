@@ -23,7 +23,7 @@ export class BatmongusComponent implements OnInit, OnDestroy {
   private timeout$: Subject<void> = new Subject();
 
   protected showModal: boolean = false;
-  protected surrender: boolean = false;
+  protected confirmSurrender: boolean = false;
 
   constructor(
     private batmongusService: BatmongusService,
@@ -104,23 +104,24 @@ export class BatmongusComponent implements OnInit, OnDestroy {
     this.timeout$.complete();
   }
 
-  openModal() {
+  toggleActionBar() {
     this.showModal = !this.showModal;
-    this.surrender = false;
+    this.confirmSurrender = false;
   }
 
-  openSurrenderModal() {
+  toggleSurrenderModal() {
     this.showModal = false;
-    this.surrender = true;
+    this.confirmSurrender = true;
   }
 
   chooseSurrender() {
     // TODO: Implement surrender
-    const path = '';
-    return this.router.navigate([ path ]);
+    // const path = '';
+    // return this.router.navigate([ path ]);
   }
 
   chooseNotSurrender() {
-    this.surrender = false;
+    this.showModal = true;
+    this.confirmSurrender = false;
   }
 }

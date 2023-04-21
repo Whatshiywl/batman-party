@@ -1,39 +1,45 @@
-.font-standard {
+.action-bar {
   font-family: Verdana, Helvetica, Arial, sans-serif;
-}
+  align-self: end;
+  justify-self: stretch;
+  background-color: rgb(153, 151, 151);
 
-.bar {
-  bottom: 0px;
-  position: absolute;
-  width: 100%;
-  background-color: rgb(153, 151, 151)
-}
+  .pull-bar {
+    display: flex;
+    justify-content: center;
+  }
 
-.flex-center {
-  display: flex;
-  justify-content: center;
-}
+  .action-area {
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+    color: black;
+    padding: 0 10px;
 
-.flex-row {
-  display: flex; flex-direction: row;
-}
+    strong {
+      color: rgb(178, 0, 0);
+    }
 
-.button-icon {
-  background: inherit;
-  border: none;
-  color: white
-}
+    button {
+      background-color: red;
+      border: none;
+      font-weight: bold;
+    }
+  }
 
-.button-text {
-  border: gray;
-  border-radius: 10px;
-  font-size: x-small;
-}
+  .warning-bar {
+    display: flex;
+    flex-direction: column;
+    background-color: red;
+    padding-top: 10px;
+    align-items: center;
 
-.margin-small {
-  margin: 5%
-}
+    .confirm-options {
+      display: flex;
 
-.warning-bar {
-  background-color: red; color: black; padding: 2%; display: flex; align-items: center;flex-direction: column;
+      button {
+        margin: 5px;
+      }
+    }
+  }
 }
