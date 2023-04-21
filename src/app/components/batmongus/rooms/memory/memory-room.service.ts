@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { AngularFirestore } from "@angular/fire/compat/firestore";
 import { filter, map, mergeMap, Subject, switchMap, tap } from "rxjs";
 import { BatmongusRoomService, Room, RoomOptions, RoomSpot } from "../room.service";
+import { BatmongusService } from "../../batmongus.service";
 
 export interface MemoryRoom extends Room {
 }
@@ -29,9 +30,10 @@ export class BatmongusMemoryRoomService extends BatmongusRoomService<MemoryRoom,
   public readonly cardFlipped: Subject<boolean> = new Subject();
 
   constructor(
-    afs: AngularFirestore
+    afs: AngularFirestore,
+    batmongusService: BatmongusService
   ) {
-    super('memory', afs);
+    super('memory', afs, batmongusService);
 
     this.cardFlip.pipe(
       mergeMap(index => this.processFlip(index)),

@@ -13,6 +13,7 @@ import { BatmongusFuelDumpRoomService } from "./rooms/fuel-dump/fuel-dump-room.s
   selector: 'batmongus-admin',
   template: `
 <div class="batmongus-admin-wrapper">
+  <button (click)="resetBatmongusId()">Reset ID</button>
   <h1>Rooms</h1>
   <select
     #batmongusAdminRooms
@@ -260,6 +261,10 @@ export class BatmongusAdminComponent {
 
     this.wireRoomCompleted$ = this.batmongusWireRoomService.completed$;
     this.wireRoomState$ = this.batmongusWireRoomService.roomState$;
+  }
+
+  async resetBatmongusId() {
+    await this.batmongusService.generateId();
   }
 
   resetButtonRoom(numberOfButtons: number) {

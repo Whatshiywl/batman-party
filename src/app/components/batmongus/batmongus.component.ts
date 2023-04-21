@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Params, Router  } from "@angular/router";
-import { debounceTime, map, skipUntil, Subject, takeUntil, timer } from "rxjs";
+import { buffer, debounceTime, filter, map, skipUntil, Subject, takeUntil, takeWhile, tap, throttleTime, timer } from "rxjs";
 import { BatmongusService } from "./batmongus.service";
 import { BatmongusRoomComponent } from "./rooms/room.component";
 import { Room } from "./rooms/room.service";
 import { environment } from "src/environments/environment";
+import { LocalStorageService } from "src/app/shared/local-storage.service";
 
 @Component({
   selector: 'batman-batmongus',
@@ -12,7 +13,7 @@ import { environment } from "src/environments/environment";
   styleUrls: ['./batmongus.component.scss']
 })
 export class BatmongusComponent implements OnInit, OnDestroy {
-  protected puzzle: Room | undefined;
+  protected roomPreview: Room | undefined;
   protected scanResult: {
     path: string,
     queryParams: Params | undefined
@@ -21,12 +22,20 @@ export class BatmongusComponent implements OnInit, OnDestroy {
 
   private scan$: Subject<string> = new Subject();
   private timeout$: Subject<void> = new Subject();
+  private destroy$: Subject<void> = new Subject();
 
   protected showModal: boolean = false;
   protected confirmSurrender: boolean = false;
 
+  private killClick: Subject<void> = new Subject();
+
+  protected lost: boolean = false;
+  protected lostCounter: number = 0;
+  protected lostMessage: string = 'vc morreu';
+
   constructor(
     private batmongusService: BatmongusService,
+    private localStorage: LocalStorageService,
     private router: Router
   ) { }
 
@@ -37,9 +46,28 @@ export class BatmongusComponent implements OnInit, OnDestroy {
         const [ pathname, queryString ] = value.split('?');
         const params = this.parseQueryString(queryString);
         return { pathname, params };
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe(({ pathname, params }) => this.enterRoom(pathname, params));
-    this.timeout$.pipe(debounceTime(200)).subscribe(() => this.exitRoom());
+
+    this.timeout$.pipe(
+      debounceTime(200),
+      takeUntil(this.destroy$),
+    ).subscribe(() => this.exitRoom());
+
+    this.killClick.pipe(
+      takeUntil(this.destroy$),
+      buffer(this.killClick.pipe(debounceTime(300))),
+      filter(clicks => clicks.length > 1),
+      throttleTime(60 * 1000),
+    ).subscribe(() => this.batmongusService.kill());
+
+    this.localStorage.batmongusExcludeId = '';
+
+    this.localStorage.batmongusExcludeId$.pipe(
+      takeUntil(this.destroy$),
+      filter(Boolean)
+    ).subscribe(async () => await this.lose());
 
     const { pathname } = location;
     if (pathname.includes('/rooms') && !location.search) {
@@ -56,19 +84,19 @@ export class BatmongusComponent implements OnInit, OnDestroy {
 
   async enterRoom(path: string, queryParams?: Params) {
     const roomName = path.split('/').pop() as string;
-    this.puzzle = await this.batmongusService.getRoomById(roomName);
+    this.roomPreview = await this.batmongusService.getRoomById(roomName);
     this.scanResult = { path, queryParams };
   }
 
   async onAcceptRoom() {
-    this.puzzle = undefined;
+    this.roomPreview = undefined;
     if (!this.scanResult) return;
     const { path, queryParams } = this.scanResult;
     await this.router.navigate([ path ], { queryParams });
   }
 
   async onRejectRoom() {
-    this.puzzle = undefined;
+    this.roomPreview = undefined;
     this.scanResult = undefined;
   }
 
@@ -83,14 +111,17 @@ export class BatmongusComponent implements OnInit, OnDestroy {
 
   async exitRoom() {
     this.scanResult = undefined;
+    this.batmongusService.exit();
     await this.router.navigate([ '/batmongus' ]);
   }
 
   onOutletActivate(component: any) {
     if (component instanceof BatmongusRoomComponent) {
       component.timeout
-        .pipe(takeUntil(this.timeout$))
-        .subscribe(() => this.timeout$.next());
+        .pipe(
+          takeUntil(this.timeout$),
+          takeUntil(this.destroy$)
+        ).subscribe(() => this.timeout$.next());
     }
   }
 
@@ -100,6 +131,8 @@ export class BatmongusComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.scan$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
     this.timeout$.next();
     this.timeout$.complete();
   }
@@ -114,14 +147,28 @@ export class BatmongusComponent implements OnInit, OnDestroy {
     this.confirmSurrender = true;
   }
 
-  chooseSurrender() {
-    // TODO: Implement surrender
-    // const path = '';
-    // return this.router.navigate([ path ]);
+  async chooseSurrender() {
+    this.lostMessage = 'impostor';
+    await this.batmongusService.beKilled();
   }
 
   chooseNotSurrender() {
     this.showModal = true;
     this.confirmSurrender = false;
+  }
+
+  onKillClick() {
+    this.killClick.next();
+  }
+
+  async lose() {
+    this.lost = true;
+    timer(0, 500).pipe(
+      takeUntil(this.destroy$),
+      takeWhile(value => value < 10),
+    ).subscribe({
+      next: value => this.lostCounter = value,
+      complete: () => this.router.navigate([ '/' ])
+    });
   }
 }

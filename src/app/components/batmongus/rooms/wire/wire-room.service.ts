@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { AngularFirestore } from "@angular/fire/compat/firestore";
 import { filter, first, iif, map, of, Subject, switchMap, tap } from "rxjs";
 import { BatmongusRoomService, Room, RoomOptions, RoomSpot } from "../room.service";
+import { BatmongusService } from "../../batmongus.service";
 
 export interface WireRoom extends Room {
   target: string;
@@ -49,9 +50,10 @@ export class BatmongusWireRoomService extends BatmongusRoomService<WireRoom, Wir
   ]
 
   constructor(
-    afs: AngularFirestore
+    afs: AngularFirestore,
+    batmongusService: BatmongusService
   ) {
-    super('wire', afs);
+    super('wire', afs, batmongusService);
     this.room$.subscribe(room => this.numberOfWires = room?.numberOfWires || 0);
 
     this.wireCut.pipe(

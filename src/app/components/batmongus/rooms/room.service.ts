@@ -1,5 +1,6 @@
-import { AngularFirestoreDocument, AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
-import { BehaviorSubject, Observable, map } from "rxjs";
+import { AngularFirestoreDocument, AngularFirestore, AngularFirestoreCollection, DocumentReference } from "@angular/fire/compat/firestore";
+import { BehaviorSubject, Observable, filter, map, takeUntil } from "rxjs";
+import { BatmongusService } from "../batmongus.service";
 
 export interface Room {
   name: string;
@@ -11,6 +12,7 @@ export interface Room {
 
 export interface RoomSpot {
   claimedAt: number;
+  kill: boolean;
 }
 
 export interface RoomOptions { }
@@ -25,11 +27,13 @@ export abstract class BatmongusRoomService<
   protected readonly room$: Observable<R | undefined>;
   protected readonly spotsCol: AngularFirestoreCollection<S>;
   protected readonly spots$: Observable<S[]>;
+  protected spotRef: DocumentReference<S> | null = null;
   protected timeout: number = 0;
 
   constructor(
     roomName: string,
     protected afs: AngularFirestore,
+    protected batmongusService: BatmongusService
   ) {
     this.roomRef = this.afs.collection('puzzles/batmongus/rooms').doc<R>(roomName);
     this.room$ = this.roomRef.valueChanges();
@@ -39,10 +43,11 @@ export abstract class BatmongusRoomService<
     this.spotsCol = this.roomRef.collection('spots');
     this.spots$ = this.spotsCol.valueChanges();
     this.getTimeout().then(timeout => this.timeout = timeout);
+    this.batmongusService.kill$.subscribe(async () => await this.processKill());
   }
 
   async claim() {
-    return this.afs.firestore.runTransaction(async transaction => {
+    const ref = await this.afs.firestore.runTransaction(async transaction => {
       const claimedAt = Date.now();
       const timestamp = claimedAt - this.timeout;
       const spots = await this.spotsCol.ref.where('claimedAt', '<', timestamp).get();
@@ -54,6 +59,14 @@ export abstract class BatmongusRoomService<
       transaction.update(ref, { claimedAt });
       return ref;
     });
+    this.spotRef = ref;
+    if (ref) {
+      this.spotsCol.doc(ref.id).valueChanges().pipe(
+        takeUntil(this.batmongusService.exit$),
+        filter(spot => spot?.kill || false)
+      ).subscribe(async () => await this.batmongusService.beKilled());
+    }
+    return ref;
   }
 
   get roomState$() {
@@ -88,8 +101,24 @@ export abstract class BatmongusRoomService<
     }
     const spotStates = (await this.getRestartSpotStates(options, room)) || [] as { key: string, value: Partial<S> }[];
     for (const { key, value } of spotStates) {
-      await this.spotsCol.doc(key).set({ claimedAt: 0, ...value } as S);
+      await this.spotsCol.doc(key).set({ claimedAt: 0, kill: false, ...value } as S);
     }
+  }
+
+  private async processKill() {
+    if (!this.spotRef) return;
+    const myId = this.spotRef.id;
+    const claimedAt = Date.now();
+    const timestamp = claimedAt - this.timeout;
+    const spots = await this.spotsCol.ref.where('claimedAt', '>=', timestamp).get();
+    const notMine = spots.docs.filter(doc => doc.id !== myId);
+    if (!notMine.length) return;
+    const randomSpot = notMine[Math.floor(Math.random() * notMine.length)];
+    if (!randomSpot) return;
+    const { ref } = randomSpot;
+    await ref.update({ kill: true });
+    await new Promise(r => setTimeout(r, 500));
+    await ref.update({ kill: false });
   }
 
   protected async getRestartPuzzleState(o: O): Promise<Partial<R>> { return { } };

@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { AngularFirestore } from "@angular/fire/compat/firestore";
 import { filter, map, mergeMap, Subject, switchMap } from "rxjs";
 import { BatmongusRoomService, Room, RoomOptions, RoomSpot } from "../room.service";
+import { BatmongusService } from "../../batmongus.service";
 
 export interface SwitchRoom extends Room {
   numberOfSwitches: number;
@@ -21,9 +22,10 @@ export class BatmongusSwitchRoomService extends BatmongusRoomService<SwitchRoom,
   private numberOfSwitches: number = 0;
 
   constructor(
-    afs: AngularFirestore
+    afs: AngularFirestore,
+    batmongusService: BatmongusService
   ) {
-    super('switch', afs);
+    super('switch', afs, batmongusService);
     this.room$.subscribe(room => this.numberOfSwitches = room?.numberOfSwitches || 0);
 
     this.switchChange.pipe(

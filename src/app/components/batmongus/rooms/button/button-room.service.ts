@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { AngularFirestore } from "@angular/fire/compat/firestore";
 import { filter, map, Subject, switchMap, tap } from "rxjs";
 import { BatmongusRoomService, Room, RoomOptions, RoomSpot } from "../room.service";
+import { BatmongusService } from "../../batmongus.service";
 
 export interface ButtonSpot extends RoomSpot {
   pressed: boolean;
@@ -16,9 +17,10 @@ export class BatmongusButtonRoomService extends BatmongusRoomService<Room, Butto
   private readonly buttonChange: Subject<{ index: string, pressed: boolean }> = new Subject();
 
   constructor(
-    afs: AngularFirestore
+    afs: AngularFirestore,
+    batmongusService: BatmongusService,
   ) {
-    super('button', afs);
+    super('button', afs, batmongusService);
 
     this.buttonChange.pipe(
       tap(({ index, pressed }) => this.setButtonState(index, pressed)),

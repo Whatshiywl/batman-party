@@ -3,6 +3,7 @@ import { AngularFirestore } from "@angular/fire/compat/firestore";
 import { BehaviorSubject, Subject, filter, tap } from "rxjs";
 import { BatmongusRoomService, Room, RoomOptions, RoomSpot } from "../room.service";
 import { SessionStorageService } from "src/app/shared/session-storage.service";
+import { BatmongusService } from "../../batmongus.service";
 
 export interface FuelIntakeRoom extends Room {
   maxFuel: number;
@@ -27,9 +28,10 @@ export class BatmongusFuelIntakeRoomService extends BatmongusRoomService<FuelInt
 
   constructor(
     afs: AngularFirestore,
-    private sessionStorageService: SessionStorageService
+    private sessionStorageService: SessionStorageService,
+    batmongusService: BatmongusService
   ) {
-    super('fuel-intake', afs);
+    super('fuel-intake', afs, batmongusService);
     this.room$.pipe(
       tap(room => this.maxFuel = room?.maxFuel || 0)
     ).subscribe(() => this.updateFuelState());

@@ -23,11 +23,13 @@ import { BatmongusFuelIntakeRoomComponent } from "./rooms/fuel-intake/fuel-intak
 import { BatmongusFuelIntakeRoomService } from "./rooms/fuel-intake/fuel-intake-room.service";
 import { BatmongusFuelDumpRoomComponent } from "./rooms/fuel-dump/fuel-dump-room.component";
 import { BatmongusFuelDumpRoomService } from "./rooms/fuel-dump/fuel-dump-room.service";
+import { BatmongusGuard } from "./batmongus.guard";
 
 const routes: Routes = [
   {
     path: '',
     component: BatmongusComponent,
+    canActivate: [ BatmongusGuard ],
     children: [
       {
         path: 'rooms/button',
@@ -111,6 +113,7 @@ const routes: Routes = [
     BatmongusAdminComponent
   ],
   providers: [
+    BatmongusGuard,
     BatmongusService,
     BatmongusButtonRoomService,
     BatmongusFuelDumpRoomService,

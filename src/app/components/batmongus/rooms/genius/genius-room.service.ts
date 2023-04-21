@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { AngularFirestore } from "@angular/fire/compat/firestore";
 import { BehaviorSubject, filter, map, Subject, switchMap, timer } from "rxjs";
 import { BatmongusRoomService, Room, RoomOptions, RoomSpot } from "../room.service";
+import { BatmongusService } from "../../batmongus.service";
 
 export interface GeniusRoom extends Room {
   order: string[];
@@ -37,9 +38,10 @@ export class BatmongusGeniusRoomService extends BatmongusRoomService<GeniusRoom,
   ];
 
   constructor(
-    afs: AngularFirestore
+    afs: AngularFirestore,
+    batmongusService: BatmongusService
   ) {
-    super('genius', afs);
+    super('genius', afs, batmongusService);
     this.room$.subscribe(room => this.showColor$.next(room?.order[room?.showPosition] || ''));
 
     this.buttonChange.pipe(

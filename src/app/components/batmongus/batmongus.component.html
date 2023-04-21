@@ -1,6 +1,13 @@
-<div class="batman-grid">
+<div
+  class="batmongus-lost"
+  [style.opacity]="lost ? 1 : 0"
+  [style.backgroundColor]="(lostCounter % 2) ? 'transparent' : 'red'"
+>{{ lostMessage }}</div>
+
+<div *ngIf="!lost" class="batman-grid">
+
   <batman-scan
-    *ngIf="!scanResult || puzzle"
+    *ngIf="!scanResult || roomPreview"
     class="batman-grid-body"
     (result)="onScanResult($event)"
     [debug]="!isProduction"
@@ -12,7 +19,7 @@
     (deactivate)="onOutletDeactivate()">
   </router-outlet>
 
-  <div *ngIf="!scanResult || puzzle"
+  <div *ngIf="!scanResult || roomPreview"
     class="batman-grid-footer action-bar">
     <div class="pull-bar" (click)="toggleActionBar()">
       ≡
@@ -34,13 +41,19 @@
       </div>
     </div>
   </div>
+
+  <div
+    *ngIf="scanResult && !roomPreview"
+    class="batman-grid-footer action-bar kill-bar"
+    (click)="onKillClick()">
+  </div>
 </div>
 <batman-modal
-  *ngIf="puzzle"
+  *ngIf="!lost && roomPreview"
   type="question"
-  [header]="puzzle.name"
-  [image]="puzzle.image"
-  [text]="puzzle.instructions"
+  [header]="roomPreview.name"
+  [image]="roomPreview.image"
+  [text]="roomPreview.instructions"
   acceptButton="Entrar"
   rejectButton="Cancelar"
   (accept)="onAcceptRoom()"
