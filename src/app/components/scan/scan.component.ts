@@ -7,7 +7,7 @@ import { Result } from "@zxing/library";
   selector: 'batman-scan',
   template: `
 <div *ngIf="devices === undefined || hasDevices" class="scanner-wrapper">
-  <div *ngIf="debug" class="debug-controls">
+  <div *ngIf="debug" class="debug-controls normal-font">
     <div class="debug-control-line">
       <input type="text" [formControl]="lastScanControl">
       <button (click)="onScan()">Scan</button>
@@ -48,7 +48,6 @@ import { Result } from "@zxing/library";
     width: 100%;
     padding: 5px 0;
     background-color: #000a;
-    font-family: Helvetica, Arial, Sans-Serif;
     overflow-wrap: break-word;
 
     > .debug-control-line {

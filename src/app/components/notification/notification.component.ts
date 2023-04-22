@@ -22,13 +22,13 @@ import { Notification, NotificationService } from "./notification.service";
     <div class="batman-notification-body">
       <span>{{ notif.text }}</span>
       <div *ngIf="notif.type === 'announcement'"
-        class="batman-notification-button batman-notification-button-accept"
+        class="batman-notification-button batman-notification-button-accept normal-font"
         (click)="onYes(notif)">OK</div>
       <div *ngIf="notif.type === 'question'"
-        class="batman-notification-button batman-notification-button-accept"
+        class="batman-notification-button batman-notification-button-accept normal-font"
         (click)="onYes(notif)">Aceitar</div>
       <div *ngIf="notif.type === 'question'"
-        class="batman-notification-button batman-notification-button-reject"
+        class="batman-notification-button batman-notification-button-reject normal-font"
         (click)="onNo(notif)">Rejeitar</div>
     </div>
   </div>
@@ -88,7 +88,6 @@ import { Notification, NotificationService } from "./notification.service";
 
       > .batman-notification-button {
         padding: 5px;
-        font-family: Verdana, Helvetica, Arial, sans-serif;
         font-size: 24px;
 
         &.batman-notification-button-accept {

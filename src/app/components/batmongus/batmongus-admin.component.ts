@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, map } from "rxjs";
 import { BatmongusService, Player } from "./batmongus.service";
 import { BatmongusButtonRoomService, ButtonSpot } from "./rooms/button/button-room.service";
 import { BatmongusSwitchRoomService, SwitchSpot } from "./rooms/switch/switch-room.service";
@@ -13,7 +13,9 @@ import { BatmongusFuelDumpRoomService } from "./rooms/fuel-dump/fuel-dump-room.s
   selector: 'batmongus-admin',
   template: `
 <div class="batmongus-admin-wrapper">
-  <button (click)="resetBatmongusId()">Reset ID</button>
+  <button (click)="resetBatmongusId()">Reset</button>
+  <button (click)="endEmergencyMeeting()">End meeting</button>
+  Meeting progress: {{ meetingProgress$ | async | number: '.3-3' }}
   <h1>Rooms</h1>
   <select
     #batmongusAdminRooms
@@ -209,6 +211,8 @@ export class BatmongusAdminComponent {
   protected readonly players$: Observable<Player[]>;
   protected readonly rooms: Promise<string[]>;
 
+  protected readonly meetingProgress$: Observable<number>;
+
   protected readonly buttonRoomCompleted$: Observable<boolean>;
   protected readonly buttonRoomButtons$: Observable<ButtonSpot[]>;
 
@@ -242,6 +246,10 @@ export class BatmongusAdminComponent {
     this.players$ = this.batmongusService.players$;
     this.rooms = this.batmongusService.getRooms();
 
+    this.meetingProgress$ = this.batmongusService.batmongus$.pipe(
+      map(batmongus => batmongus?.holdProgress ?? 0)
+    );
+
     this.buttonRoomCompleted$ = this.batmongusButtonRoomService.completed$;
     this.buttonRoomButtons$ = this.batmongusButtonRoomService.roomSpots$;
 
@@ -265,6 +273,10 @@ export class BatmongusAdminComponent {
 
   async resetBatmongusId() {
     await this.batmongusService.generateId();
+  }
+
+  async endEmergencyMeeting() {
+    await this.batmongusService.updateHold(0);
   }
 
   resetButtonRoom(numberOfButtons: number) {

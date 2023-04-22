@@ -6,16 +6,18 @@ import { LocalStorageService } from "src/app/shared/local-storage.service";
 
 export interface Batmongus {
   id: string;
+  hold: boolean;
+  holdProgress: number;
 }
 
 export interface Player {
   id: string;
   alive: boolean;
 }
-
 @Injectable()
 export class BatmongusService {
   public readonly batmongus: AngularFirestoreDocument<Batmongus>;
+  public readonly batmongus$: Observable<Batmongus | undefined>;
   public readonly playersCol: AngularFirestoreCollection<Player>;
   public readonly players$: Observable<Player[]>;
   public readonly roomsCol: AngularFirestoreCollection;
@@ -29,7 +31,8 @@ export class BatmongusService {
     private localStorage: LocalStorageService
   ) {
     this.batmongus = afs.doc('puzzles/batmongus');
-    this.batmongus.valueChanges().subscribe(batmongus => this.batmongusId = batmongus?.id);
+    this.batmongus$ = this.batmongus.valueChanges();
+    this.batmongus$.subscribe(batmongus => this.batmongusId = batmongus?.id);
 
     this.playersCol = afs.collection('puzzles/batmongus/players');
     this.players$ = this.playersCol.valueChanges();
@@ -67,6 +70,13 @@ export class BatmongusService {
   async beKilled() {
     if (!this.batmongusId) return;
     this.localStorage.batmongusExcludeId = this.batmongusId;
+  }
+
+  updateHold(holdProgress: number) {
+    return this.batmongus.update({
+      hold: !!holdProgress,
+      holdProgress
+    });
   }
 
 }

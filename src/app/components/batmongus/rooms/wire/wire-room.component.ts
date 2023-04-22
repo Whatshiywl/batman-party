@@ -20,7 +20,8 @@ import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
       preserveAspectRatio="none"
       [innerHTML]="svg"
       (click)="onCut()"/>
-      <p *ngIf="!(completed$ | async) && !(triggered$ | async) && (spot$ | async) as wire" class="wire-clue-phrase">
+      <p *ngIf="!(completed$ | async) && !(triggered$ | async) && (spot$ | async) as wire"
+        class="wire-clue-phrase normal-font">
         Não corte o fio
         <span [style.color]="wire.clueColor">
           {{ wire.clueText }}
@@ -70,7 +71,6 @@ import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
     text-align: center;
 
     &.wire-clue-phrase {
-      font-family: Verdana, Helvetica, Arial, sans-serif;
       font-size: 2em;
 
       > span {

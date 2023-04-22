@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 @Component({
   selector: 'batman-modal',
   template: `
-<div class="batman-modal-panel noselect">
+<div class="batman-modal-panel noselect normal-font">
   <div class="batman-modal-modal">
     <div *ngIf="header" class="batman-modal-header">
       {{ header }}
@@ -35,7 +35,6 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
   right: 0;
   background-color: #fff5;
   z-index: 10;
-  font-family: Verdana, Helvetica, Arial, sans-serif;
 
   > .batman-modal-modal {
     $height: 90vh;

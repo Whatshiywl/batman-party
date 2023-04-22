@@ -1,11 +1,16 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Params, Router  } from "@angular/router";
-import { buffer, debounceTime, filter, map, skipUntil, Subject, takeUntil, takeWhile, tap, throttleTime, timer } from "rxjs";
+import { buffer, debounceTime, filter, interval, map, skipUntil, Subject, takeUntil, takeWhile, throttleTime, timer } from "rxjs";
 import { BatmongusService } from "./batmongus.service";
 import { BatmongusRoomComponent } from "./rooms/room.component";
 import { Room } from "./rooms/room.service";
 import { environment } from "src/environments/environment";
 import { LocalStorageService } from "src/app/shared/local-storage.service";
+
+export interface Hold {
+  hold: boolean;
+  progress: number;
+}
 
 @Component({
   selector: 'batman-batmongus',
@@ -32,6 +37,9 @@ export class BatmongusComponent implements OnInit, OnDestroy {
   protected lost: boolean = false;
   protected lostCounter: number = 0;
   protected lostMessage: string = 'vc morreu';
+
+  protected holding: boolean = false;
+  protected holdProgress: number = 0;
 
   constructor(
     private batmongusService: BatmongusService,
@@ -75,6 +83,15 @@ export class BatmongusComponent implements OnInit, OnDestroy {
     } else {
       this.scanResult = undefined;
     }
+
+    this.batmongusService.batmongus$.pipe(
+      takeUntil(this.destroy$),
+      filter(Boolean)
+    ).subscribe(batmongus => {
+      this.holding = batmongus.hold;
+      this.holdProgress = batmongus.holdProgress;
+      if (this.holding) this.timeout$.next();
+    });
   }
 
   async onScanResult(value: string) {
@@ -169,6 +186,20 @@ export class BatmongusComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: value => this.lostCounter = value,
       complete: () => this.router.navigate([ '/' ])
+    });
+  }
+
+  async hold() {
+    const holdTime = 2 * 60 * 1000;
+    const holdDt = 2000;
+    const holdN = holdTime / holdDt;
+    timer(0, holdDt).pipe(
+      takeUntil(this.destroy$),
+      map(value => 1 - (value / holdN)),
+      takeWhile(value => value > 0)
+    ).subscribe({
+      next: async progress => await this.batmongusService.updateHold(progress),
+      complete: async () => await this.batmongusService.updateHold(0)
     });
   }
 }

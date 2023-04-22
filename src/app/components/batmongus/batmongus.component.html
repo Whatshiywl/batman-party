@@ -1,13 +1,27 @@
 <div
-  class="batmongus-lost"
+  class="batmongus-full batmongus-lost"
   [style.opacity]="lost ? 1 : 0"
   [style.backgroundColor]="(lostCounter % 2) ? 'transparent' : 'red'"
 >{{ lostMessage }}</div>
 
-<div *ngIf="!lost" class="batman-grid">
+<div
+  *ngIf="holding"
+  class="batmongus-full batmongus-hold"
+>?</div>
+
+<div
+  *ngIf="!lost"
+  class="batman-grid"
+  [style.display]="holding ? 'none' : 'grid'">
+
+  <div
+    *ngIf="!holding"
+    class="batman-grid-header emergency-meeting normal-font"
+    (click)="hold()"
+  >Reunião de emergência</div>
 
   <batman-scan
-    *ngIf="!scanResult || roomPreview"
+    *ngIf="(!scanResult || roomPreview) && !holding"
     class="batman-grid-body"
     (result)="onScanResult($event)"
     [debug]="!isProduction"
@@ -20,7 +34,7 @@
   </router-outlet>
 
   <div *ngIf="!scanResult || roomPreview"
-    class="batman-grid-footer action-bar">
+    class="batman-grid-footer action-bar normal-font">
     <div class="pull-bar" (click)="toggleActionBar()">
       ≡
     </div>
@@ -43,7 +57,7 @@
   </div>
 
   <div
-    *ngIf="scanResult && !roomPreview"
+    *ngIf="(scanResult && !roomPreview) && !holding"
     class="batman-grid-footer action-bar kill-bar"
     (click)="onKillClick()">
   </div>
