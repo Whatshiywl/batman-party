@@ -21,7 +21,7 @@ import { Subject, debounceTime, map, merge, takeUntil, tap } from "rxjs";
         <!-- {{ flipped ? card.image : ref.id }} -->
       </div>
       <div *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</div>
-      <div *ngIf="completed$ | async">Feito!</div>
+      <div *ngIf="completed$ | async">{{ (memoryRoomService.room$ | async)?.clue }}</div>
     </div>
   </div>
   `,
@@ -70,7 +70,7 @@ export class BatmongusMemoryRoomComponent extends BatmongusRoomComponent<
   private readonly cardFlip: Subject<void> = new Subject();
 
   constructor(
-    private memoryRoomService: BatmongusMemoryRoomService
+    protected memoryRoomService: BatmongusMemoryRoomService
   ) {
     super(memoryRoomService);
     this.cardFlip.pipe(

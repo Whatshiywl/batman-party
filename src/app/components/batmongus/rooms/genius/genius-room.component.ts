@@ -20,7 +20,7 @@ import { CommonModule } from "@angular/common";
         ?
       </div>
       <div *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</div>
-      <div *ngIf="completed$ | async">Feito!</div>
+      <div *ngIf="completed$ | async">{{ (geniusRoomService.room$ | async)?.clue }}</div>
     </div>
   </div>
   `,
@@ -64,7 +64,7 @@ export class BatmongusGeniusRoomComponent extends BatmongusRoomComponent<
   private buttonPress$: Subject<void> = new Subject();
 
   constructor(
-    private geniusRoomService: BatmongusGeniusRoomService
+    protected geniusRoomService: BatmongusGeniusRoomService
   ) {
     super(geniusRoomService);
   }

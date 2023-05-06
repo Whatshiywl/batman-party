@@ -29,7 +29,7 @@ import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
       </p>
       <p *ngIf="triggered$ | async">BOOM! Tente mais uma vez...</p>
       <p *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</p>
-      <p *ngIf="completed$ | async">Feito!</p>
+      <div *ngIf="completed$ | async">{{ (wireRoomService.room$ | async)?.clue }}</div>
     </div>
   </div>
   `,
@@ -91,7 +91,7 @@ export class BatmongusWireRoomComponent extends BatmongusRoomComponent<
   protected svg: SafeHtml = "";
 
   constructor(
-    private wireRoomService: BatmongusWireRoomService,
+    protected wireRoomService: BatmongusWireRoomService,
     private sanitizer: DomSanitizer
   ) {
     super(wireRoomService);

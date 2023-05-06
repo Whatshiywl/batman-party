@@ -34,7 +34,7 @@ const routes: Routes = [
       {
         path: 'rooms/button',
         component: BatmongusButtonRoomComponent,
-        canActivate: [ SecretGuard ],
+        canActivate: [ SecretGuard, BatmongusGuard ],
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusButtonRoomService
@@ -43,7 +43,7 @@ const routes: Routes = [
       {
         path: 'rooms/fuel-dump',
         component: BatmongusFuelDumpRoomComponent,
-        canActivate: [ SecretGuard ],
+        canActivate: [ SecretGuard, BatmongusGuard ],
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusFuelDumpRoomService,
@@ -53,7 +53,7 @@ const routes: Routes = [
       {
         path: 'rooms/fuel-intake',
         component: BatmongusFuelIntakeRoomComponent,
-        canActivate: [ SecretGuard ],
+        canActivate: [ SecretGuard, BatmongusGuard ],
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusFuelIntakeRoomService
@@ -62,7 +62,7 @@ const routes: Routes = [
       {
         path: 'rooms/genius',
         component: BatmongusGeniusRoomComponent,
-        canActivate: [ SecretGuard ],
+        canActivate: [ SecretGuard, BatmongusGuard ],
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusGeniusRoomService
@@ -71,7 +71,7 @@ const routes: Routes = [
       {
         path: 'rooms/memory',
         component: BatmongusMemoryRoomComponent,
-        canActivate: [ SecretGuard ],
+        canActivate: [ SecretGuard, BatmongusGuard ],
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusMemoryRoomService
@@ -80,7 +80,7 @@ const routes: Routes = [
       {
         path: 'rooms/switch',
         component: BatmongusSwitchRoomComponent,
-        canActivate: [ SecretGuard ],
+        canActivate: [ SecretGuard, BatmongusGuard ],
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusSwitchRoomService
@@ -89,7 +89,7 @@ const routes: Routes = [
       {
         path: 'rooms/wire',
         component: BatmongusWireRoomComponent,
-        canActivate: [ SecretGuard ],
+        canActivate: [ SecretGuard, BatmongusGuard ],
         data: { rejectTo: '/batmongus' },
         providers: [
           BatmongusWireRoomService

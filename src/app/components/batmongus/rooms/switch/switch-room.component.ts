@@ -18,7 +18,7 @@ import { CommonModule } from "@angular/common";
         {{ +ref.id + 1 }}
       </div>
       <div *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</div>
-      <div *ngIf="completed$ | async">Feito!</div>
+      <div *ngIf="completed$ | async">{{ (switchRoomService.room$ | async)?.clue }}</div>
     </div>
   </div>
   `,
@@ -59,7 +59,7 @@ export class BatmongusSwitchRoomComponent extends BatmongusRoomComponent<
 > implements OnInit {
 
   constructor(
-    private switchRoomService: BatmongusSwitchRoomService
+    protected switchRoomService: BatmongusSwitchRoomService
   ) {
     super(switchRoomService);
   }

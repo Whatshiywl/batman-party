@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { filter, map, merge, repeat, Subject, takeUntil, tap, timer, withLatestFrom } from "rxjs";
+import { filter, map, merge, Observable, repeat, Subject, takeUntil, tap, timer, withLatestFrom } from "rxjs";
 import { BatmongusRoomComponent } from "../room.component";
 import { BatmongusButtonRoomService, ButtonOptions, ButtonSpot } from "./button-room.service";
 import { CommonModule } from "@angular/common";
@@ -24,7 +24,7 @@ import { Room } from "../room.service";
         ?
       </div>
       <div *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</div>
-      <div *ngIf="completed$ | async">Feito!</div>
+      <div *ngIf="completed$ | async">{{ (buttonRoomService.room$ | async)?.clue }}</div>
     </div>
   </div>
   `,
@@ -71,7 +71,7 @@ export class BatmongusButtonRoomComponent extends BatmongusRoomComponent<
   private readonly start$: Subject<void> = new Subject();
 
   constructor(
-    private buttonRoomService: BatmongusButtonRoomService
+    protected buttonRoomService: BatmongusButtonRoomService
   ) {
     super(buttonRoomService);
   }

@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { Observable, map } from "rxjs";
-import { BatmongusService, Player } from "./batmongus.service";
+import { Batmongus, BatmongusService, Player } from "./batmongus.service";
 import { BatmongusButtonRoomService, ButtonSpot } from "./rooms/button/button-room.service";
 import { BatmongusSwitchRoomService, SwitchSpot } from "./rooms/switch/switch-room.service";
 import { BatmongusGeniusRoomService, GeniusSpot, GeniusRoom } from "./rooms/genius/genius-room.service";
@@ -15,6 +15,8 @@ import { BatmongusFuelDumpRoomService } from "./rooms/fuel-dump/fuel-dump-room.s
 <div class="batmongus-admin-wrapper">
   <button (click)="resetBatmongusId()">Reset</button>
   <button (click)="endEmergencyMeeting()">End meeting</button>
+  <button [disabled]="(batmongus$ | async)?.open" (click)="toggleOpen(true)">Open batmongus</button>
+  <button [disabled]="!(batmongus$ | async)?.open" (click)="toggleOpen(false)">Close batmongus</button>
   Meeting progress: {{ meetingProgress$ | async | number: '.3-3' }}
   <h1>Rooms</h1>
   <select
@@ -211,6 +213,7 @@ export class BatmongusAdminComponent {
   protected readonly players$: Observable<Player[]>;
   protected readonly rooms: Promise<string[]>;
 
+  protected readonly batmongus$: Observable<Batmongus | undefined>;
   protected readonly meetingProgress$: Observable<number>;
 
   protected readonly buttonRoomCompleted$: Observable<boolean>;
@@ -246,6 +249,8 @@ export class BatmongusAdminComponent {
     this.players$ = this.batmongusService.players$;
     this.rooms = this.batmongusService.getRooms();
 
+    this.batmongus$ = this.batmongusService.batmongus$;
+
     this.meetingProgress$ = this.batmongusService.batmongus$.pipe(
       map(batmongus => batmongus?.holdProgress ?? 0)
     );
@@ -269,6 +274,10 @@ export class BatmongusAdminComponent {
 
     this.wireRoomCompleted$ = this.batmongusWireRoomService.completed$;
     this.wireRoomState$ = this.batmongusWireRoomService.roomState$;
+  }
+
+  async toggleOpen(open: boolean) {
+    await this.batmongusService.setOpen(open);
   }
 
   async resetBatmongusId() {

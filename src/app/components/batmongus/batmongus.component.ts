@@ -190,16 +190,6 @@ export class BatmongusComponent implements OnInit, OnDestroy {
   }
 
   async hold() {
-    const holdTime = 2 * 60 * 1000;
-    const holdDt = 2000;
-    const holdN = holdTime / holdDt;
-    timer(0, holdDt).pipe(
-      takeUntil(this.destroy$),
-      map(value => 1 - (value / holdN)),
-      takeWhile(value => value > 0)
-    ).subscribe({
-      next: async progress => await this.batmongusService.updateHold(progress),
-      complete: async () => await this.batmongusService.updateHold(0)
-    });
+    await this.batmongusService.updateHold(1);
   }
 }

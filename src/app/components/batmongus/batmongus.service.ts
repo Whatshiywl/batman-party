@@ -8,12 +8,14 @@ export interface Batmongus {
   id: string;
   hold: boolean;
   holdProgress: number;
+  open: boolean;
 }
 
 export interface Player {
   id: string;
   alive: boolean;
 }
+
 @Injectable()
 export class BatmongusService {
   public readonly batmongus: AngularFirestoreDocument<Batmongus>;
@@ -52,6 +54,10 @@ export class BatmongusService {
 
   get id() {
     return this.batmongusId;
+  }
+
+  setOpen(open: boolean) {
+    return this.batmongus.update({ open });
   }
 
   generateId() {

@@ -8,6 +8,7 @@ export interface Room {
   image: string;
   completed: boolean;
   timeout: number;
+  clue: string;
 }
 
 export interface RoomSpot {
@@ -24,7 +25,7 @@ export abstract class BatmongusRoomService<
 > {
   public readonly completed$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   protected readonly roomRef: AngularFirestoreDocument<R>;
-  protected readonly room$: Observable<R | undefined>;
+  public readonly room$: Observable<R | undefined>;
   protected readonly spotsCol: AngularFirestoreCollection<S>;
   protected readonly spots$: Observable<S[]>;
   protected spotRef: DocumentReference<S> | null = null;

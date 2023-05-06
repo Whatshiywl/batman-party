@@ -23,7 +23,7 @@ import { BatmongusFuelIntakeRoomService, FuelState } from "../fuel-intake/fuel-i
         <div class="fuel-indicator" [style.height.%]="state.capacity * 100"></div>
       </div>
       <div *ngIf="!(completed$ | async) && !ref">Sala cheia, volte mais tarde.</div>
-      <div *ngIf="completed$ | async">Feito!</div>
+      <div *ngIf="completed$ | async">{{ (fuelDumpRoomService.room$ | async)?.clue }}</div>
     </div>
   </div>
   `,
@@ -81,7 +81,7 @@ export class BatmongusFuelDumpRoomComponent extends BatmongusRoomComponent<
   protected intakeState$: Observable<FuelState>;
 
   constructor(
-    private fuelDumpRoomService: BatmongusFuelDumpRoomService,
+    protected fuelDumpRoomService: BatmongusFuelDumpRoomService,
     private fuelIntakeRoomService: BatmongusFuelIntakeRoomService
   ) {
     super(fuelDumpRoomService);
